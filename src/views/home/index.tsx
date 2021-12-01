@@ -2,15 +2,16 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { useCallback, useState } from "react";
+import { useDispatch } from 'react-redux';
+import { API_ACTIONS } from 'redux/enums/login';
 
 
 const HomeScreen: React.FC = () => {
     const [count, setCount] = useState<number>(0);
-
+    const dispatch = useDispatch();
     const increment = useCallback(() => {
         setCount(prev => prev + 1);
-    }, []);
-
+    }, []); 
 
     return (
         <Container maxWidth="xs">
@@ -22,11 +23,13 @@ const HomeScreen: React.FC = () => {
                     Count {count}
                 </Grid>
                 <Grid item xs={12}>
-                    Count {count}
-                </Grid>
-                <Grid item xs={12}>
                     <Button onClick={increment} variant="contained" color="primary">
                         Add
+                    </Button>
+                </Grid>
+                <Grid item xs={12}>
+                    <Button onClick={() => dispatch({ type: API_ACTIONS.LOGOUT_REQUEST })} variant="contained" color="primary">
+                        Logout
                     </Button>
                 </Grid>
             </Grid>

@@ -1,11 +1,20 @@
 import { Button, Card, Container, Grid, TextField } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { API } from '../../helpers';
+import { API_ACTIONS } from '../../redux/enums/login';
 
 const LoginScreen: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-     
- 
+    const dispatch = useDispatch();
+    const performLogin = useCallback(async () => {
+        const response = await API.login({
+            emailId: email,
+            password
+        });
+        dispatch({ type: API_ACTIONS.LOGIN_REQUEST, payload: response })
+    }, [email, password, dispatch]);
     return (
         <Container maxWidth="xs" sx={{ marginTop: 10, }}>
             <Card sx={{ padding: 3 }}>
@@ -33,7 +42,7 @@ const LoginScreen: React.FC = () => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <Button variant="contained" fullWidth color="primary">
+                        <Button variant="contained" onClick={performLogin} fullWidth color="primary">
                             Login
                         </Button>
                     </Grid>

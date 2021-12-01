@@ -1,12 +1,12 @@
-import { useStore } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Route, Routes } from 'react-router-dom';
-import { HomeScreen, LoginScreen } from '../views/index';
+import ReduxInitialStoreState from 'redux/baseStore';
+import { HomeScreen, LoginScreen } from 'views';
 
 const MainRoutes: React.FC = () => {
-    const store = useStore();
-    console.log(store.getState());
+    const users = useSelector((state: ReduxInitialStoreState) => state.users)
     return <Routes>
-        <Route path="/" element={store.getState()?.login?.loginStatus ? <HomeScreen /> : <LoginScreen />} />
+        <Route path="/" element={users?.loginStatus ? <HomeScreen /> : <LoginScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/home" element={<HomeScreen />} />
     </Routes>;

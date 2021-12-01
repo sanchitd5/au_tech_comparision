@@ -1,29 +1,24 @@
 import { configureStore } from '@reduxjs/toolkit';
 import PropTypes from 'prop-types';
-import { Provider, TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { ApiProviderWrapper } from './actions';
+import { Provider } from 'react-redux';
 import ReduxInitialStoreState from './baseStore';
-import { loginReducer } from './reducer/login';
+import usersReducer from './reducer/user';
 
-const initialState: ReduxInitialStoreState = {
-    login: {
+export const initialState: ReduxInitialStoreState = {
+    users: {
         loginStatus: localStorage.getItem('loginStatus') === 'true',
         accessToken: localStorage.getItem('accessToken') ?? null,
-    }
+    }, 
 };
 
 const store = configureStore({
     reducer: {
-        login: loginReducer
+        users: usersReducer,
     },
     devTools: true,
-    preloadedState: initialState
+    preloadedState: initialState,
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-export type AppDispatch = typeof store.dispatch
 
 interface ReduxWrapperProps {
     children: React.ReactNode;
@@ -41,10 +36,4 @@ ReduxWrapper.propTypes = {
     children: PropTypes.node.isRequired
 };
 
-// Use throughout your app instead of plain `useDispatch` and `useSelector`
-export const useAppDispatch = () => useDispatch<AppDispatch>();
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export {
-    ApiProviderWrapper
-};
