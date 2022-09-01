@@ -2,7 +2,6 @@ import { LoginAPIBody } from "./apiInterfaces";
 import axiosClient from "./axiosClient";
 
 class APIDefinations {
-
     login(loginDetails: LoginAPIBody) {
         return axiosClient.instance.post('admin/login', {
             ...loginDetails,
