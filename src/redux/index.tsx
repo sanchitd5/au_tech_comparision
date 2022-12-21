@@ -13,6 +13,7 @@ export const initialState: ReduxInitialStoreState = {
   appConfig: {
     darkMode: false,
     bypassLogin: ApplicationConfiguration.bypassAuth ?? false,
+    useAuth: ApplicationConfiguration.useAuth ?? true,
   },
 };
 

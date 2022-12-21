@@ -8,8 +8,9 @@ interface AuthManagerProps {
 }
 
 const AuthManager = (props: AuthManagerProps) => {
-    const user = useSelector((state: ReduxInitialStoreState) => state.user)
-    if (user.loginStatus) {
+    const useAuth = useSelector((state: ReduxInitialStoreState) => state.appConfig.useAuth);
+    const user = useSelector((state: ReduxInitialStoreState) => state.user);
+    if (!(useAuth) || user.loginStatus) {
         if (props.children) {
             return props.children;
         }           
