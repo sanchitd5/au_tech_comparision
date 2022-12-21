@@ -2,10 +2,10 @@
 import { UserState, INTIAL_USER_STATE } from "../../baseStore";
 import { API_ACTIONS } from '../../enums/login';
 
-const userReducer = (state: UserState = INTIAL_USER_STATE, action: any) => {
+const userReducer = (state:  UserState = INTIAL_USER_STATE, action: any) => {
     console.log(state, action);
     switch (action.type) {
-        case API_ACTIONS.LOGIN_REQUEST:
+        case API_ACTIONS.LOGIN_REQUEST:{ 
             if (action.payload.success) {
                 localStorage.setItem('accessToken', action.payload.data);
                 localStorage.setItem('loginStatus', 'true');
@@ -22,6 +22,7 @@ const userReducer = (state: UserState = INTIAL_USER_STATE, action: any) => {
                     loginStatus: false
                 };
             }
+        }
         case API_ACTIONS.LOGOUT_REQUEST:
             localStorage.removeItem('accessToken');
             localStorage.removeItem('loginStatus');

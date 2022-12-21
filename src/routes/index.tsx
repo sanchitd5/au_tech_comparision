@@ -3,12 +3,32 @@ import { Route, Routes } from 'react-router-dom';
 import ReduxInitialStoreState from 'redux/baseStore';
 import { HomeScreen, LoginScreen } from 'views';
 
-const MainRoutes: React.FC = () => {
+interface AuthManagerProps {
+    children?: JSX.Element;
+}
+
+const AuthManager = (props: AuthManagerProps) => {
     const user = useSelector((state: ReduxInitialStoreState) => state.user)
+    if (user.loginStatus) {
+        if (props.children) {
+            return props.children;
+        }           
+        window.history.replaceState(null, "Home", '/home'); 
+        return <HomeScreen />
+    }
+    else {
+        if (!window.location.href.includes('login')) {
+            window.history.replaceState(null, "Login", '/login');
+        }
+        return <LoginScreen />
+    }
+}
+
+const MainRoutes: React.FC = () => {
     return <Routes>
-        <Route path="/" element={user?.loginStatus ? <HomeScreen /> : <LoginScreen />} />
-        <Route path="/login" element={<LoginScreen />} />
-        <Route path="/home" element={<HomeScreen />} />
+        <Route path="/" element={<AuthManager />} />
+        <Route path="/login" element={<AuthManager />} />
+        <Route path="/home" element={<AuthManager><HomeScreen /></AuthManager>} />
     </Routes>;
 };
 

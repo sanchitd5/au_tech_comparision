@@ -1,5 +1,5 @@
 const ApplicationConfiguration = {
-    bypassAuth: false,
+    bypassAuth: true,
 };
 
 export default ApplicationConfiguration;

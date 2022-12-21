@@ -18,7 +18,7 @@ export const initialState: ReduxInitialStoreState = {
 
 const store = configureStore({
   reducer: {
-    users: usersReducer,
+    user: usersReducer,
     appConfig: appReducer,
   },
   devTools: true,
