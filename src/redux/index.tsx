@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import PropTypes from "prop-types";
 import { Provider } from "react-redux";
 import ReduxInitialStoreState from "./baseStore";
 import usersReducer from "./reducer/user";
@@ -32,8 +31,4 @@ interface ReduxWrapperProps {
 
 export const ReduxWrapper = ({ children }: ReduxWrapperProps) => {
   return <Provider store={store}>{children}</Provider>;
-};
-
-ReduxWrapper.propTypes = {
-  children: PropTypes.node.isRequired,
 };

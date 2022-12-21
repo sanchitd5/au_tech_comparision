@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Link, IconButton, useMediaQuery } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
@@ -34,10 +33,4 @@ export const BackButton = (props: Props) => {
       </IconButton>
     </Link>
   );
-};
-
-BackButton.propTypes = {
-  onClick: PropTypes.func,
-  disableHistoryBack: PropTypes.bool,
-  color: PropTypes.string,
 };

@@ -11,7 +11,6 @@ import {
   ReactPortal,
   CSSProperties,
 } from "react";
-import PropTypes from "prop-types";
 import {
   Table,
   TableBody,
@@ -73,10 +72,6 @@ const Selector = (props: SelectorProps) => {
     </div>
   );
 };
-Selector.propTypes = {
-  selectedObject: PropTypes.any,
-  toggle: PropTypes.func,
-};
 
 interface ActionButtonSwitchProps {
   defaultValue: any;
@@ -100,11 +95,6 @@ const ActionButtonSwitch = (props: ActionButtonSwitchProps) => {
     />
   );
 };
-ActionButtonSwitch.propTypes = {
-  defaultValue: PropTypes.any.isRequired,
-  function: PropTypes.func.isRequired,
-};
-
 interface ActionButtonProps {
   function: (arg0: any) => void;
   label:
@@ -125,10 +115,6 @@ const ActionButton = (props: ActionButtonProps) => {
   );
 };
 
-ActionButton.propTypes = {
-  label: PropTypes.string.isRequired,
-  function: PropTypes.func.isRequired,
-};
 
 const arrayDiff = (arrayA: Array<any>, arrayB: Array<any>) => {
   var result = [];
@@ -239,11 +225,6 @@ const TablePaperWrapper = (props: TablePaperWrapperProps) => {
   return <Paper className={classes.root}>{props.children}</Paper>;
 };
 
-TablePaperWrapper.propTypes = {
-  children: PropTypes.node.isRequired,
-  disableContainer: PropTypes.bool.isRequired,
-};
-
 interface HeadingProps {
   sortAssending?: boolean;
   align?: "left" | "right" | "inherit" | "center" | "justify" | undefined;
@@ -254,7 +235,7 @@ interface HeadingProps {
     | boolean
     | ReactElement<any, string | JSXElementConstructor<any>>
     | ReactFragment;
-  selectedSortVariable: any;
+  selectedSortVariable?: any;
   onSortChange?: (
     arg0: MouseEvent<HTMLSpanElement, globalThis.MouseEvent>,
     arg1: any
@@ -293,16 +274,6 @@ const Heading = (props: HeadingProps) => {
   );
 };
 
-Heading.propTypes = {
-  styles: PropTypes.object,
-  align: PropTypes.string,
-  sort: PropTypes.bool,
-  titleCase: PropTypes.bool,
-  selectedSortVariable: PropTypes.string,
-  onSortChange: PropTypes.func,
-  value: PropTypes.string.isRequired,
-  sortAssending: PropTypes.bool,
-};
 
 interface TableHeaderProps {
   disable: boolean;
@@ -359,20 +330,6 @@ const TableHeader = (props: TableHeaderProps) => {
       )}
     </Toolbar>
   );
-};
-
-TableHeader.propTypes = {
-  title: PropTypes.string,
-  disable: PropTypes.bool.isRequired,
-  selecteditems: PropTypes.arrayOf(PropTypes.object).isRequired,
-  options: PropTypes.shape({
-    toolbarActions: PropTypes.arrayOf(
-      PropTypes.shape({
-        label: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-  }),
 };
 
 interface TableHeadingProps {
@@ -443,36 +400,6 @@ const TableHeading = (props: TableHeadingProps) => {
   );
 };
 
-TableHeading.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.object),
-  options: PropTypes.shape({
-    actionLocation: PropTypes.oneOf(["start", "end"]),
-    selector: PropTypes.bool,
-    toolbarActions: PropTypes.arrayOf(
-      PropTypes.shape({
-        label: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-    actions: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string,
-        label: PropTypes.string,
-        type: PropTypes.oneOf(["switch", "button"]),
-        defaultValueFrom: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-    titleCaseHeadings: PropTypes.bool,
-  }),
-  keys: PropTypes.arrayOf(PropTypes.string),
-  sort: PropTypes.shape({
-    sort: PropTypes.bool,
-    selectedSortVariable: PropTypes.string,
-    onSortChange: PropTypes.func,
-    sortAssending: PropTypes.bool,
-  }),
-};
 
 interface TableErrorAndEmptyRowsProps {
   error: any;
@@ -549,29 +476,6 @@ const TableErrorAndEmptyRows = (props: TableErrorAndEmptyRowsProps) => {
     );
   else return null;
 };
-
-TableErrorAndEmptyRows.propTypes = {
-  error: PropTypes.bool,
-  errorText: PropTypes.string,
-  emptyRows: PropTypes.func.isRequired,
-  keys: PropTypes.arrayOf(PropTypes.string),
-  options: PropTypes.shape({
-    selector: PropTypes.bool,
-    ui: PropTypes.shape({
-      disableContainer: PropTypes.bool,
-    }),
-    actions: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string,
-        label: PropTypes.string,
-        type: PropTypes.oneOf(["switch", "button"]),
-        defaultValueFrom: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-  }),
-};
-
 interface RenderRowProps {
   keys: string[];
   actions?: Array<TableActionProps | false>;
@@ -660,29 +564,6 @@ const RenderRow = (props: RenderRowProps) => {
   ]);
 
   return <TableRow>{toRender}</TableRow>;
-};
-
-RenderRow.propTypes = {
-  keys: PropTypes.array.isRequired,
-  data: PropTypes.any,
-  selector: PropTypes.bool,
-  index: PropTypes.number,
-  toolbarActions: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      function: PropTypes.func,
-    })
-  ),
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      label: PropTypes.string,
-      type: PropTypes.oneOf(["switch", "button"]),
-      defaultValueFrom: PropTypes.string,
-      function: PropTypes.func,
-    })
-  ),
-  actionLocation: PropTypes.oneOf(["start", "end"]),
 };
 
 interface TablePaginationComponentProps {
@@ -840,27 +721,6 @@ const TablePaginationComponent = (props: TablePaginationComponentProps) => {
   );
 };
 
-TablePaginationComponent.propTypes = {
-  options: PropTypes.shape({
-    disablePagination: PropTypes.bool,
-    disablePaginationDefaults: PropTypes.bool,
-    pagination: PropTypes.shape({
-      disable: PropTypes.bool,
-      onFirstButtonClick: PropTypes.func,
-      onBackButtonClick: PropTypes.func,
-      onNextButtonClick: PropTypes.func,
-      onLastButtonClick: PropTypes.func,
-    }),
-  }),
-  rowsPerPageOptions: PropTypes.array,
-  rowsPerPage: PropTypes.number.isRequired,
-  page: PropTypes.number.isRequired,
-  handleChangeRowsPerPage: PropTypes.func,
-  data: PropTypes.arrayOf(PropTypes.object),
-  setPage: PropTypes.func.isRequired,
-  setRowsPerPage: PropTypes.func.isRequired,
-};
-
 interface TableComponentProps {
   data: Array<any>;
   page: number;
@@ -962,41 +822,6 @@ const TableComponent = (props: TableComponentProps) => {
       }}
     </FixedSizeList>
   );
-};
-
-TableComponent.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  page: PropTypes.number,
-  tableClassName: PropTypes.string,
-  tableBodyClassName: PropTypes.string,
-  tableBodyStyle: PropTypes.any,
-  tableStyle: PropTypes.any,
-  rowsPerPage: PropTypes.number,
-  stickyHeader: PropTypes.bool,
-  keys: PropTypes.arrayOf(PropTypes.string),
-  options: PropTypes.shape({
-    disablePagination: PropTypes.bool,
-    selector: PropTypes.bool,
-    actionLocation: PropTypes.oneOf(["start", "end"]),
-    ui: PropTypes.shape({
-      bodyHeight: PropTypes.number,
-    }),
-    actions: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string,
-        label: PropTypes.string,
-        type: PropTypes.oneOf(["switch", "button"]),
-        defaultValueFrom: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-    toolbarActions: PropTypes.arrayOf(
-      PropTypes.shape({
-        label: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-  }),
 };
 
 interface EnhancedTableProps {
@@ -1232,48 +1057,4 @@ export const EnhancedTable = (props: EnhancedTableProps) => {
       />
     </TablePaperWrapper>
   );
-};
-
-EnhancedTable.propTypes = {
-  title: PropTypes.string,
-  data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  error: PropTypes.bool,
-  errorText: PropTypes.string,
-  options: PropTypes.shape({
-    rowsPerPage: PropTypes.number,
-    enableSort: PropTypes.bool,
-    ignoreKeys: PropTypes.arrayOf(PropTypes.string),
-    selector: PropTypes.bool,
-    actionLocation: PropTypes.oneOf(["start", "end"]),
-    titleCaseHeadings: PropTypes.bool,
-    ui: PropTypes.shape({
-      disableContainer: PropTypes.bool,
-      disableTitle: PropTypes.bool,
-      maxHeight: PropTypes.any,
-      minWidth: PropTypes.any,
-    }),
-    actions: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string,
-        label: PropTypes.string,
-        type: PropTypes.oneOf(["switch", "button"]),
-        defaultValueFrom: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-    toolbarActions: PropTypes.arrayOf(
-      PropTypes.shape({
-        label: PropTypes.string,
-        function: PropTypes.func,
-      })
-    ),
-    disablePaginationDefaults: PropTypes.bool,
-    pagination: PropTypes.shape({
-      disable: PropTypes.bool.isRequired,
-      onFirstButtonClick: PropTypes.func,
-      onBackButtonClick: PropTypes.func,
-      onNextButtonClick: PropTypes.func,
-      onLastButtonClick: PropTypes.func,
-    }),
-  }),
 };
