@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import ReduxInitialStoreState from 'redux/baseStore';
 import { API_ACTIONS } from 'redux/enums/login';
 import { HTMLElement } from 'node-html-parser';
-import { AppBar, Badge, Box, Card, Divider, Drawer, IconButton, Input, List, ListItem, ListItemButton, ListItemSecondaryAction, ListItemText, OutlinedInput, Toolbar, Typography } from '@mui/material';
+import { AppBar, Badge, Box, Card, Divider, Drawer, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, OutlinedInput, Toolbar, Typography } from '@mui/material';
 import { Image } from 'components/Media/Media';
 import axios from 'axios';
 import _ from 'lodash';
@@ -17,6 +17,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { CART_ACTIONS } from 'redux/enums/cart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TextHelper } from 'helpers';
+import { useKeyPress } from 'hooks';
 
 function editDistance(s1: string, s2: string) {
     s1 = s1.toLowerCase();
@@ -187,8 +188,7 @@ const ProductCard = (props: { product: Product }) => {
 const searchPcCaseGearProducts = async (searchTerm: string) => {
     const response = await axios.create({
         baseURL: 'https://hpd3dbj2io-3.algolianet.com/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)&x-algolia-application-id=HPD3DBJ2IO&x-algolia-api-key=9559cf1a6c7521a30ba0832ec6c38499',
-    }).post('', `{\"requests\":[{\"indexName\":\"pccg_products\",\"params\":\"query=${searchTerm}&maxValuesPerFacet=128&page=0&highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&clickAnalytics=true&facets=%5B%22manufacturers_name%22%2C%22indicator.filter%22%2C%22products_price%22%2C%22categories.lvl0%22%5D&tagFilters=\"}]}`);
-    console.log();
+    }).post('', `{"requests":[{"indexName":"pccg_products","params":"query=${searchTerm}&maxValuesPerFacet=128&page=0&highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&clickAnalytics=true&facets=%5B%22manufacturers_name%22%2C%22indicator.filter%22%2C%22products_price%22%2C%22categories.lvl0%22%5D&tagFilters="}]}`);
     return response.data.results[0].hits.map((p: any) => pcCaseGearSearchProductHTMLNodeToProduct(p))
 }
 
@@ -271,7 +271,7 @@ const Header = () => {
                     </ListItemSecondaryAction>
                 </ListItem>
                 {cartState.cart.products.map((cartProduct, index) => (
-                    <ListItem sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} component={Button} onClick={(e) => {
+                    <ListItem href={cartProduct.url} target={'_blank'} rel="noreferrer" sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} component={'a'} onClick={(e) => {
                         e.stopPropagation();
                     }}   >
                         <Grid container spacing={1}>
@@ -391,6 +391,7 @@ const HomeScreen: React.FC = () => {
         })
         setProducts(combineProducts(products))
     }, []);
+    useKeyPress('Enter', () => searchTerm && searchAllVendors(searchTerm));
     return (
         <main>
             <Box><Header /></Box>
@@ -402,7 +403,7 @@ const HomeScreen: React.FC = () => {
                                 setProducts(undefined);
                             }
                             setSearchTerm(val.target.value);
-                        }}/>
+                        }} />
                     </Grid>
                     <Grid item xs={2}>
                         <Button onClick={() => searchTerm && searchAllVendors(searchTerm)} variant='contained'>Search</Button>
