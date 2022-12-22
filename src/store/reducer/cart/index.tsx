@@ -1,5 +1,5 @@
 
-import { CART_ACTIONS } from "redux/enums/cart";
+import { CART_ACTIONS } from "store/enums/cart";
 import { CartProduct, Product, ProductVendor } from "types";
 import { CartState, INITIAL_CART_STATE } from "../../baseStore";
 

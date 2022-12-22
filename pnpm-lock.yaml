@@ -22,6 +22,7 @@ specifiers:
   '@types/react-redux': ^7.1.24
   '@types/react-router-dom': ^5.3.3
   '@types/react-window': ^1.8.5
+  '@types/redux': ^3.6.0
   '@types/string-similarity': ^4.0.0
   axios: ^1.2.1
   date-fns: ^2.29.3
@@ -33,6 +34,8 @@ specifiers:
   react-router-dom: ^6.5.0
   react-scripts: 5.0.1
   react-window: ^1.8.8
+  redux: ^4.2.0
+  reduxjs-toolkit-persist: ^7.2.1
   string-similarity: ^4.0.4
   typescript: ^4.9.4
   web-vitals: ^3.1.0
@@ -54,10 +57,12 @@ dependencies:
   node-html-parser: 6.1.4
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
-  react-redux: 8.0.5_yqqa5ithnjtlkxisuaub7c4kpa
+  react-redux: 8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq
   react-router-dom: 6.5.0_biqbaboplfbrettd7655fr4n2y
   react-scripts: 5.0.1_o77wnou4wwnegu5woljtklrzru
   react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
+  redux: 4.2.0
+  reduxjs-toolkit-persist: 7.2.1_@reduxjs+toolkit@1.9.1
   string-similarity: 4.0.4
   typescript: 4.9.4
   web-vitals: 3.1.0
@@ -74,6 +79,7 @@ devDependencies:
   '@types/react-redux': 7.1.24
   '@types/react-router-dom': 5.3.3
   '@types/react-window': 1.8.5
+  '@types/redux': 3.6.0
   '@types/string-similarity': 4.0.0
 
 packages:
@@ -1401,13 +1407,13 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.11
+    dev: false
 
   /@babel/runtime/7.20.6:
     resolution: {integrity: sha512-Q+8MqP7TiHMWzSfwiJwXCjyf4GYA4Dgw3emg/7xmwsdLJOZUp+nMqcOwOzzYheuM1rhDu8FSj2l0aoMygEuXuA==}
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.11
-    dev: false
 
   /@babel/template/7.18.10:
     resolution: {integrity: sha512-TI+rCtooWHr3QJ27kJxfjutghu44DLnasDMwpDqCXVTal9RLp3RSYNh4NdBrRP2cQAoG9A8juOQl6P6oZG4JxA==}
@@ -2373,7 +2379,7 @@ packages:
     dependencies:
       immer: 9.0.16
       react: 18.2.0
-      react-redux: 8.0.5_yqqa5ithnjtlkxisuaub7c4kpa
+      react-redux: 8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq
       redux: 4.2.0
       redux-thunk: 2.4.2_redux@4.2.0
       reselect: 4.1.7
@@ -2877,6 +2883,13 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.1.0
+
+  /@types/redux/3.6.0:
+    resolution: {integrity: sha512-ic+60DXHW5seNyqFvfr7Sk5cnXs+HsF9tIeIaxjOuSP5kzgDXC+AzKTYmjAfuLx4Sccm/0vjwBQj3OOkUkwOqg==}
+    deprecated: This is a stub types definition for Redux (https://github.com/reactjs/redux). Redux provides its own type definitions, so you don't need @types/redux installed!
+    dependencies:
+      redux: 4.2.0
+    dev: true
 
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
@@ -8757,7 +8770,7 @@ packages:
   /react-is/18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
 
-  /react-redux/8.0.5_yqqa5ithnjtlkxisuaub7c4kpa:
+  /react-redux/8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq:
     resolution: {integrity: sha512-Q2f6fCKxPFpkXt1qNRZdEDLlScsDWyrgSj0mliK59qU6W5gvBiKkdMEG2lJzhd1rCctf0hb6EtePPLZ2e0m1uw==}
     peerDependencies:
       '@types/react': ^16.8 || ^17.0 || ^18.0
@@ -8787,6 +8800,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-is: 18.2.0
+      redux: 4.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
@@ -9008,7 +9022,15 @@ packages:
   /redux/4.2.0:
     resolution: {integrity: sha512-oSBmcKKIuIR4ME29/AeNUnl5L+hvBq7OaJWzaptTQJAntaPvxIJqfnjbaEiCzzaIz+XmVILfqAM3Ob0aXLPfjA==}
     dependencies:
-      '@babel/runtime': 7.18.9
+      '@babel/runtime': 7.20.6
+
+  /reduxjs-toolkit-persist/7.2.1_@reduxjs+toolkit@1.9.1:
+    resolution: {integrity: sha512-1gu9Qid0qXlsM4a2D8eHx/YOwa7I0lgAXqM0KYQoX2RA+KMezkq5wkJKEMLoUkpqVuWYHRdU7auS2/jFVsR0gQ==}
+    peerDependencies:
+      '@reduxjs/toolkit': ^1.6.1
+    dependencies:
+      '@reduxjs/toolkit': 1.9.1_k4ae6lp43ej6mezo3ztvx6pykq
+    dev: false
 
   /regenerate-unicode-properties/10.0.1:
     resolution: {integrity: sha512-vn5DU6yg6h8hP/2OkQo3K7uVILvY4iu0oI4t3HFa81UPkhGJwkRwM10JEc3upjdhHjs/k8GJY1sRBhk5sr69Bw==}

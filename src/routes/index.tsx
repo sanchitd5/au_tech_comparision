@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { Route, Routes } from 'react-router-dom';
-import ReduxInitialStoreState from 'redux/baseStore';
+import ReduxInitialStoreState from 'store/baseStore';
 import { HomeScreen, LoginScreen } from 'views';
 
 interface AuthManagerProps {

@@ -1,4 +1,4 @@
-import { APP_ACTIONS } from "redux/enums/app";
+import { APP_ACTIONS } from "store/enums/app";
 import { INITIAL_APP_STATE, AppState } from "../../baseStore";
 
 const appReducer = (state: AppState = INITIAL_APP_STATE, action: any) => { 

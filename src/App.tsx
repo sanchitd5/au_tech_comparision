@@ -1,6 +1,6 @@
 import { createTheme, ThemeProvider } from '@mui/material';
 import React from 'react';
-import { ReduxWrapper } from './redux';
+import { ReduxWrapper } from './store';
 import Routes from './routes';
 
 const theme = createTheme();
