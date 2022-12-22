@@ -64,12 +64,28 @@ const msySearchProductHTMLNodeToProduct = (node: HTMLElement) => {
         info: [{
             originalPrice: parseFloat('0'),
             price: node.querySelector('.goods_price')?.text ?? '0',
-            url: 'https://www.msy.com.au/'+node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('href') ?? '',
+            url: 'https://www.msy.com.au/' + node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('href') ?? '',
             inStock: node.querySelector('.goods_stock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
             vendor: ProductVendor.MSY,
             description: node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('title') ?? '',
         }],
         image: node.querySelector('.goods_img')?.querySelector('img')?.getAttribute('src') ?? '',
+    }
+    return product;
+}
+
+const computerAllianceSearchProductHTMLNodeToProduct = (node: HTMLElement) => {
+    const product: Product = {
+        name: node.querySelector('.equalize')?.text  ?? '',
+        info: [{
+            originalPrice: parseFloat('0'),
+            price: node.querySelector('.price')?.text ?? '0',
+            url: 'https://www.computeralliance.com.au/' + node.querySelector('.product')?.querySelector('a')?.getAttribute('href') ?? '',
+            inStock: node.querySelector('.instock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
+            vendor: ProductVendor.COMPUTER_ALLIANCE,
+            description: node.querySelector('.equalize')?.text ?? '',
+        }],
+        image: node.querySelector('.img-container')?.querySelector('img')?.getAttribute('src') ?? '',
     }
     return product;
 }
@@ -201,6 +217,15 @@ const searchMSYProducts = async (searchTerm: string) => {
     return products?.map(p => msySearchProductHTMLNodeToProduct(p)) ?? []
 }
 
+const searchComputerAllianceProducts = async (searchTerm: string) => {
+    let computerAllianceScrapper = new WebScrapper('https://www.computeralliance.com.au');
+    const htmlContent = await computerAllianceScrapper.getHTMLFromPathWithParams(`/search`, {
+        search: searchTerm
+    }); // get the html content
+    const products = htmlContent?.querySelectorAll('.product') ?? [];
+    return products?.map(p => computerAllianceSearchProductHTMLNodeToProduct(p)) ?? []
+}
+
 const combineProducts = (products: Product[], searchTerm: string): Product[] => {
     products = products.map(p => {
         p.name = p.name.replace('\r\n', '')
@@ -223,34 +248,35 @@ const combineProducts = (products: Product[], searchTerm: string): Product[] => 
 const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: boolean }) => {
     const dispatch = useDispatch();
     return (
-        <>{
-            cart.products.map((cartProduct, index) => (
-                <ListItem href={cartProduct.url} target={'_blank'} rel="noreferrer" sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} component={'a'} onClick={(e) => {
-                    e.stopPropagation();
-                }}   >
-                    <Grid container spacing={1}>
-                        <Grid item xs={2}>
-                            <Image src={cartProduct.image} style={{ width: '100%' }} />
+        <>
+            {
+                cart.products.map((cartProduct, index) => (
+                    <ListItem href={cartProduct.url} target={'_blank'} rel="noreferrer" sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} component={'a'} onClick={(e) => {
+                        e.stopPropagation();
+                    }}   >
+                        <Grid container spacing={1}>
+                            <Grid item xs={2}>
+                                <Image src={cartProduct.image} style={{ width: '100%' }} />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <ListItemText primary={`${cartProduct.name}[${TextHelper.titleCase(TextHelper.removeUnderscore(cartProduct.vendor))}] ${cartProduct.quantity > 1 ? `(${cartProduct.quantity})` : ''}`} secondary={`$${cartProduct.price}`} />
+                            </Grid>
                         </Grid>
-                        <Grid item xs={6}>
-                            <ListItemText primary={`${cartProduct.name}[${TextHelper.titleCase(TextHelper.removeUnderscore(cartProduct.vendor))}] ${cartProduct.quantity > 1 ? `(${cartProduct.quantity})` : ''}`} secondary={`$${cartProduct.price}`} />
-                        </Grid>
-                    </Grid>
-                    {useAddProduct && <ListItemSecondaryAction>
-                        <IconButton onClick={(e) => {
-                            e.stopPropagation();
-                            dispatch({
-                                type: CART_ACTIONS.REMOVE_PRODUCT,
-                                product: cartProduct,
-                            });
-                        }} edge="end" aria-label="delete">
-                            <DeleteIcon />
-                        </IconButton>
-                    </ListItemSecondaryAction>}
-                    <Divider />
-                </ListItem>
-            ))
-        }
+                        {useAddProduct && <ListItemSecondaryAction>
+                            <IconButton onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch({
+                                    type: CART_ACTIONS.REMOVE_PRODUCT,
+                                    product: cartProduct,
+                                });
+                            }} edge="end" aria-label="delete">
+                                <DeleteIcon />
+                            </IconButton>
+                        </ListItemSecondaryAction>}
+                        <Divider />
+                    </ListItem>
+                ))
+            }
             {cart.totalItems ?
                 <ListItem sx={{ backgroundColor: 'black', color: 'white' }}>
                     <ListItemText primary={`Total: $${cart.total}`} />
@@ -443,7 +469,8 @@ const HomeScreen: React.FC = () => {
             searchScorptecProducts(searchTerm),
             searchCentrecomProducts(searchTerm),
             searchMSYProducts(searchTerm),
-            searchPcCaseGearProducts(searchTerm)
+            searchPcCaseGearProducts(searchTerm),
+            searchComputerAllianceProducts(searchTerm),
         ])
         setSearching(false);
         let products: Product[] = [];

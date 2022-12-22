@@ -2,7 +2,8 @@ export enum ProductVendor {
     SCORPTEC = 'SCORPTEC',
     MSY = 'MSY',
     CENTRECOM = 'CENTRECOM',
-    PC_CASE_GEAR = 'PC_CASE_GEAR'
+    PC_CASE_GEAR = 'PC_CASE_GEAR',
+    COMPUTER_ALLIANCE = 'COMPUTER_ALLIANCE',
 }
 
 export interface ProductInfo {
