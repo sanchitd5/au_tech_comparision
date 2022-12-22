@@ -16,10 +16,10 @@ export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: b
         <>
             {
                 cart.products.map((cartProduct, index) => (
-                    <ListItem href={cartProduct.url} target={'_blank'} rel="noreferrer" sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} component={'a'} onClick={(e) => {
+                    <ListItem sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} onClick={(e) => {
                         e.stopPropagation();
-                    }}   >
-                        <Grid container spacing={1}>
+                    }}>
+                        <Grid href={cartProduct.url} sx={{color: 'black'}} target={'_blank'} rel="noreferrer" container component={'a'} spacing={1}>
                             <Grid item xs={2}>
                                 <Image src={cartProduct.image} style={{ width: '100%' }} />
                             </Grid>
