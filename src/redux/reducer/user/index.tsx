@@ -1,8 +1,8 @@
 
-import { UserState, INTIAL_USER_STATE } from "../../baseStore";
+import { UserState, INITIAL_USER_STATE } from "../../baseStore";
 import { API_ACTIONS } from '../../enums/login';
 
-const userReducer = (state:  UserState = INTIAL_USER_STATE, action: any) => {
+const userReducer = (state:  UserState = INITIAL_USER_STATE, action: any) => {
     console.log(state, action);
     switch (action.type) {
         case API_ACTIONS.LOGIN_REQUEST:{ 

@@ -56,6 +56,10 @@ class TextHelper {
   formatToD_MMMM_YYYY(date: Date): string {
     return format(new Date(date), "D MMMM YYYY");
   }
+
+  removeUnderscore(str: string): string {
+    return str.replace(/_/g, " ");
+  }
 }
 
 const instance = new TextHelper();
