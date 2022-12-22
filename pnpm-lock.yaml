@@ -22,6 +22,7 @@ specifiers:
   '@types/react-redux': ^7.1.24
   '@types/react-router-dom': ^5.3.3
   '@types/react-window': ^1.8.5
+  '@types/string-similarity': ^4.0.0
   axios: ^1.2.1
   date-fns: ^2.29.3
   lodash: ^4.17.21
@@ -32,6 +33,7 @@ specifiers:
   react-router-dom: ^6.5.0
   react-scripts: 5.0.1
   react-window: ^1.8.8
+  string-similarity: ^4.0.4
   typescript: ^4.9.4
   web-vitals: ^3.1.0
 
@@ -56,6 +58,7 @@ dependencies:
   react-router-dom: 6.5.0_biqbaboplfbrettd7655fr4n2y
   react-scripts: 5.0.1_o77wnou4wwnegu5woljtklrzru
   react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
+  string-similarity: 4.0.4
   typescript: 4.9.4
   web-vitals: 3.1.0
 
@@ -71,6 +74,7 @@ devDependencies:
   '@types/react-redux': 7.1.24
   '@types/react-router-dom': 5.3.3
   '@types/react-window': 1.8.5
+  '@types/string-similarity': 4.0.0
 
 packages:
 
@@ -2912,6 +2916,10 @@ packages:
 
   /@types/stack-utils/2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
+
+  /@types/string-similarity/4.0.0:
+    resolution: {integrity: sha512-dMS4S07fbtY1AILG/RhuwmptmzK1Ql8scmAebOTJ/8iBtK/KI17NwGwKzu1uipjj8Kk+3mfPxum56kKZE93mzQ==}
+    dev: true
 
   /@types/testing-library__jest-dom/5.14.5:
     resolution: {integrity: sha512-SBwbxYoyPIvxHbeHxTZX2Pe/74F/tX2/D3mMvzabdeJ25bBojfW0TyB8BHrbq/9zaaKICJZjLP+8r6AeZMFCuQ==}
@@ -9573,6 +9581,10 @@ packages:
 
   /string-natural-compare/3.0.1:
     resolution: {integrity: sha512-n3sPwynL1nwKi3WJ6AIsClwBMa0zTi54fn2oLU6ndfTSIO05xaznjSf15PcBZU6FNWbmN5Q6cxT4V5hGvB4taw==}
+    dev: false
+
+  /string-similarity/4.0.4:
+    resolution: {integrity: sha512-/q/8Q4Bl4ZKAPjj8WerIBJWALKkaPRfrvhfF8k/B23i4nzrlRj2/go1m90In7nG/3XDSbOo0+pu6RvCTM9RGMQ==}
     dev: false
 
   /string-width/4.2.3:

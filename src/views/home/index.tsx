@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import ReduxInitialStoreState from 'redux/baseStore';
 import { API_ACTIONS } from 'redux/enums/login';
 import { HTMLElement } from 'node-html-parser';
-import { AppBar, Badge, Box, Card, Divider, Drawer, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, OutlinedInput, Toolbar, Typography } from '@mui/material';
+import { AppBar, Badge, Box, Card, Divider, Drawer, FormControlLabel, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, OutlinedInput, Toolbar, Typography } from '@mui/material';
 import { Image } from 'components/Media/Media';
 import axios from 'axios';
 import _ from 'lodash';
@@ -18,47 +18,9 @@ import { CART_ACTIONS } from 'redux/enums/cart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TextHelper } from 'helpers';
 import { useKeyPress } from 'hooks';
+import stringSimilarity from "string-similarity";
+import Checkbox from '@mui/material/Checkbox';
 
-function editDistance(s1: string, s2: string) {
-    s1 = s1.toLowerCase();
-    s2 = s2.toLowerCase();
-
-    let costs = [];
-    for (let i = 0; i <= s1.length; i++) {
-        let lastValue = i;
-        for (let j = 0; j <= s2.length; j++) {
-            if (i === 0)
-                costs[j] = j;
-            else {
-                if (j > 0) {
-                    let newValue = costs[j - 1];
-                    if (s1.charAt(i - 1) !== s2.charAt(j - 1))
-                        newValue = Math.min(Math.min(newValue, lastValue),
-                            costs[j]) + 1;
-                    costs[j - 1] = lastValue;
-                    lastValue = newValue;
-                }
-            }
-        }
-        if (i > 0)
-            costs[s2.length] = lastValue;
-    }
-    return costs[s2.length];
-}
-
-function similarity(s1: string, s2: string) {
-    let longer = s1;
-    let shorter = s2;
-    if (s1.length < s2.length) {
-        longer = s2;
-        shorter = s1;
-    }
-    let longerLength = longer.length;
-    if (longerLength === 0) {
-        return 1.0;
-    }
-    return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength.toString());
-}
 
 
 
@@ -226,7 +188,7 @@ const searchMSYProducts = async (searchTerm: string) => {
     return products?.map(p => msySearchProductHTMLNodeToProduct(p)) ?? []
 }
 
-const combineProducts = (products: Product[]): Product[] => {
+const combineProducts = (products: Product[], searchTerm: string): Product[] => {
     products = products.map(p => {
         p.name = p.name.replace('\r\n', '')
         p.name = p.name.trim()
@@ -234,8 +196,8 @@ const combineProducts = (products: Product[]): Product[] => {
     });
     for (let i = 0; i < products.length; i++) {
         for (let j = i + 1; j < products.length; j++) {
-            const similarityScore = similarity(products[i].name, products[j].name);
-            if (similarityScore > 0.60 && (products[i].info.find(i => i.vendor === products[j].info[0].vendor) === undefined)) {
+            const similarityScore = stringSimilarity.compareTwoStrings(products[i].name, products[j].name);
+            if ((similarityScore > 0.60) && (products[i].info.find(i => i.vendor === products[j].info[0].vendor) === undefined)) {
                 products[i].info.push(...products[j].info)
                 products.splice(j, 1)
             }
@@ -363,8 +325,23 @@ const Header = () => {
     );
 }
 
+
+const sortProductByAveragePrice = (a: Product, b: Product, searchTerm: string) => {
+    const aPrice = a.info.reduce((acc, cur) => acc + parseFloat(cur.price.replace(`$`, '').replace(',', '')), 0) / a.info.length;
+    const bPrice = b.info.reduce((acc, cur) => acc + parseFloat(cur.price.replace(`$`, '').replace(',', '')), 0) / b.info.length;
+
+    if ((a.name.toLowerCase().includes(searchTerm.toLowerCase()) && b.name.toLowerCase().includes(searchTerm.toLowerCase())) || a.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return aPrice - bPrice;
+    }
+    if (b.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return 1;
+    }
+    return aPrice - bPrice;
+}
+
 const HomeScreen: React.FC = () => {
     const [products, setProducts] = useState<Product[] | undefined>(undefined);
+    const [sortUsingAveragePrice, setSortUsingAveragePrice] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
     const [searching, setSearching] = useState<boolean>(false);
     const useAuth = useSelector((state: ReduxInitialStoreState) => state.appConfig.useAuth)
@@ -389,7 +366,7 @@ const HomeScreen: React.FC = () => {
                 products.push(...v.value)
             }
         })
-        setProducts(combineProducts(products))
+        setProducts(combineProducts(products, searchTerm))
     }, []);
     useKeyPress('Enter', () => searchTerm && searchAllVendors(searchTerm));
     return (
@@ -397,7 +374,7 @@ const HomeScreen: React.FC = () => {
             <Box><Header /></Box>
             <Container style={{ marginTop: '106px' }} >
                 <Grid container spacing={3}>
-                    <Grid item xs={10}>
+                    <Grid item xs={8}>
                         <OutlinedInput fullWidth value={searchTerm} placeholder={'search a computer part'} onChange={(val) => {
                             if (!val.target.value) {
                                 setProducts(undefined);
@@ -408,6 +385,9 @@ const HomeScreen: React.FC = () => {
                     <Grid item xs={2}>
                         <Button onClick={() => searchTerm && searchAllVendors(searchTerm)} variant='contained'>Search</Button>
                     </Grid>
+                    <Grid item xs={2}>
+                        <FormControlLabel control={<Checkbox value={sortUsingAveragePrice} onChange={(e) => setSortUsingAveragePrice((prev) => !prev)} />} label={'Sort by average price'} />
+                    </Grid>
                     <Grid item xs={12} >
                         <Grid container component={'center'} spacing={2} >
                             {
@@ -416,7 +396,7 @@ const HomeScreen: React.FC = () => {
                             {
                                 searchTerm && searching && 'searching...'
                             }
-                            {searchTerm && products && products.map((product, index) => {
+                            {searchTerm && products && _.cloneDeep(products).sort((a, b) => sortUsingAveragePrice ? sortProductByAveragePrice(a, b, searchTerm) : 0).map((product, index) => {
                                 return <Grid item padding={2} xs={12} key={index}>
                                     <ProductCard product={product} />
                                 </Grid>
