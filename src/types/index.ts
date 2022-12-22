@@ -11,6 +11,7 @@ export interface ProductInfo {
     vendor: ProductVendor;
     inStock: boolean;
     url: string;
+    description: string;
 }
 
 export interface Product {
@@ -23,7 +24,7 @@ export interface CartProduct {
     name: string;
     image: string;
     price: number;
-    vendor: ProductVendor; 
+    vendor: ProductVendor;
     url: string;
     quantity: number;
 }

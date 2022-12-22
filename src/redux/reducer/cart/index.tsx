@@ -15,7 +15,7 @@ const isCartProduct = (product: Product | CartProduct): product is CartProduct =
     return (product as CartProduct).quantity !== undefined;
 }
 
-const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: Product | CartProduct, type: CART_ACTIONS, vendor?: ProductVendor }) => {
+const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: Product | CartProduct, type: CART_ACTIONS, vendor?: ProductVendor, cartIndex?: number }) => {
     console.log(state, action);
     switch (action.type) {
         case CART_ACTIONS.ADD_PRODUCT: {
@@ -82,7 +82,11 @@ const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: P
             prevCartSnapshots.push(state.cart);
             return {
                 ...state,
-                cart: INITIAL_CART_STATE.cart,
+                cart: {
+                    products: [],
+                    total: 0,
+                    totalItems: 0
+                },
                 prevCartSnapshots: prevCartSnapshots
             };
         }
@@ -91,17 +95,25 @@ const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: P
             if (!prevCartSnapshots.length) {
                 throw new Error('No cart snapshots');
             }
-            const cart = prevCartSnapshots.pop();
+            if (action.cartIndex === undefined) {
+                throw new Error('No cart index');
+            }
+            const cart = prevCartSnapshots[action.cartIndex];
+            prevCartSnapshots.splice(action.cartIndex, 1)
             return {
                 ...state,
                 cart: cart,
-                prevCartSnapshots: prevCartSnapshots
+                prevCartSnapshots: prevCartSnapshots,
             };
         }
         case CART_ACTIONS.CLEAR_CART: {
             return {
                 ...state,
-                cart: INITIAL_CART_STATE.cart,
+                cart: {
+                    products: [],
+                    total: 0,
+                    totalItems: 0
+                },
             };
         }
         default:

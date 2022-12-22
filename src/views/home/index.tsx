@@ -5,7 +5,7 @@ import WebScrapper from 'helpers/Scrapper/scrapper';
 import { useCallback, useState } from "react";
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import ReduxInitialStoreState from 'redux/baseStore';
+import ReduxInitialStoreState, { Cart, CartState } from 'redux/baseStore';
 import { API_ACTIONS } from 'redux/enums/login';
 import { HTMLElement } from 'node-html-parser';
 import { AppBar, Badge, Box, Card, Divider, Drawer, FormControlLabel, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, OutlinedInput, Toolbar, Typography } from '@mui/material';
@@ -20,6 +20,8 @@ import { TextHelper } from 'helpers';
 import { useKeyPress } from 'hooks';
 import stringSimilarity from "string-similarity";
 import Checkbox from '@mui/material/Checkbox';
+import DifferenceIcon from '@mui/icons-material/Difference';
+import { EnhancedModal } from 'components/EnhancedModal';
 
 
 
@@ -33,6 +35,7 @@ const scorptecSearchProductHTMLNodeToProduct = (node: HTMLElement) => {
             url: node.querySelector('.detail-product-title')?.querySelector('a')?.getAttribute('href') ?? '',
             inStock: node.querySelector('.detail-product-stock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
             vendor: ProductVendor.SCORPTEC,
+            description: node.querySelector('a[data-tb-sid="st_description-link"]')?.text ?? '',
         }],
         image: node.querySelector('.detail-image-wrapper')?.querySelector('img')?.getAttribute('src') ?? '',
     }
@@ -48,7 +51,7 @@ const centrecomSearchProductHTMLNodeToProduct = (productItem: any) => {
             url: `https://www.centrecom.com.au/${productItem.seName}`,
             inStock: productItem.stockQuantity ? true : false,
             vendor: ProductVendor.CENTRECOM,
-
+            description: productItem.shortDescription ?? '',
         }],
         image: productItem.imgUrl,
     }
@@ -61,9 +64,10 @@ const msySearchProductHTMLNodeToProduct = (node: HTMLElement) => {
         info: [{
             originalPrice: parseFloat('0'),
             price: node.querySelector('.goods_price')?.text ?? '0',
-            url: node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('href') ?? '',
+            url: 'https://www.msy.com.au/'+node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('href') ?? '',
             inStock: node.querySelector('.goods_stock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
             vendor: ProductVendor.MSY,
+            description: node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('title') ?? '',
         }],
         image: node.querySelector('.goods_img')?.querySelector('img')?.getAttribute('src') ?? '',
     }
@@ -79,7 +83,7 @@ const pcCaseGearSearchProductHTMLNodeToProduct = (productItem: any) => {
             url: `https://www.pccasegear.com/${productItem.Product_URL}`,
             inStock: productItem.indicator.label === 'In stock' ? true : false,
             vendor: ProductVendor.PC_CASE_GEAR,
-
+            description: productItem.products_description ?? '',
         }],
         image: productItem.Image_URL,
     }
@@ -89,27 +93,36 @@ const pcCaseGearSearchProductHTMLNodeToProduct = (productItem: any) => {
 
 const ProductInfoArea = ({ info, key, addProduct }: { info: _.Omit<ProductInfo, 'price'> & { price: number }, key: any, addProduct: Function }) => {
     return (
-        <Grid item xs={12} spacing={1} container key={key}>
-            <Grid item xs={3}>
-                <Typography >
-                    {TextHelper.titleCase(TextHelper.removeUnderscore(info.vendor))}
-                </Typography>
-            </Grid>
-            <Grid item xs={3}>
-                <Typography>
-                    ${info.price}
-                </Typography>
-            </Grid>
-            <Grid item xs={2}>
-                <Typography color={info.inStock ? 'green' : 'red'}>
-                    {info.inStock ? 'In Stock' : 'Out of Stock'}
-                </Typography>
-            </Grid>
-            <Grid item xs={2} padding={1}>
-                <Button LinkComponent={'a'} variant='outlined' href={info.url} target={'_blank'} rel="noreferrer">View</Button>
-            </Grid>
-            <Grid item xs={2} padding={1}>
-                <Button variant='contained' onClick={() => addProduct()}>Add To Cart</Button>
+        <Grid item xs={12} spacing={1} key={key} >
+            <Grid container padding={1} sx={{
+                border: '1px solid #e0e0e0',
+            }}>
+                <Grid item xs={3}>
+                    <Typography >
+                        {TextHelper.titleCase(TextHelper.removeUnderscore(info.vendor))}
+                    </Typography>
+                </Grid>
+                <Grid item xs={3}>
+                    <Typography>
+                        ${info.price}
+                    </Typography>
+                </Grid>
+                <Grid item xs={2}>
+                    <Typography color={info.inStock ? 'green' : 'red'}>
+                        {info.inStock ? 'In Stock' : 'Out of Stock'}
+                    </Typography>
+                </Grid>
+                <Grid item xs={2} padding={1}>
+                    <Button LinkComponent={'a'} variant='outlined' href={info.url} target={'_blank'} rel="noreferrer">View</Button>
+                </Grid>
+                <Grid item xs={2} padding={1}>
+                    <Button variant='contained' onClick={() => addProduct()}>Add To Cart</Button>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography>
+                        {info.description}
+                    </Typography>
+                </Grid>
             </Grid>
         </Grid>
     )
@@ -206,76 +219,132 @@ const combineProducts = (products: Product[], searchTerm: string): Product[] => 
     return products;
 }
 
-const Header = () => {
-    const cartState = useSelector((state: ReduxInitialStoreState) => state.cart ?? { cart: { totalItems: 0 } });
-    const dispatch = useDispatch();
-    const [cartOpen, setCartOpen] = useState<boolean>(false);
-    const toggleCart = () => setCartOpen(!cartOpen);
 
-    const cart = () => (
-        <Box
-            sx={{ width: '40vw' }}
-            role="presentation"
-            onKeyDown={() => toggleCart()}
-        >
-            <List>
-                <ListItem>
-                    <ListItemText primary="Cart" />
-                    <ListItemSecondaryAction>
-                        <IconButton edge="end" aria-label="delete" onClick={(e) => {
+const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: boolean }) => {
+    const dispatch = useDispatch();
+    return (
+        <>{
+            cart.products.map((cartProduct, index) => (
+                <ListItem href={cartProduct.url} target={'_blank'} rel="noreferrer" sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} component={'a'} onClick={(e) => {
+                    e.stopPropagation();
+                }}   >
+                    <Grid container spacing={1}>
+                        <Grid item xs={2}>
+                            <Image src={cartProduct.image} style={{ width: '100%' }} />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ListItemText primary={`${cartProduct.name}[${TextHelper.titleCase(TextHelper.removeUnderscore(cartProduct.vendor))}] ${cartProduct.quantity > 1 ? `(${cartProduct.quantity})` : ''}`} secondary={`$${cartProduct.price}`} />
+                        </Grid>
+                    </Grid>
+                    {useAddProduct && <ListItemSecondaryAction>
+                        <IconButton onClick={(e) => {
                             e.stopPropagation();
                             dispatch({
-                                type: CART_ACTIONS.CLEAR_CART,
+                                type: CART_ACTIONS.REMOVE_PRODUCT,
+                                product: cartProduct,
                             });
-                        }}>
-                            Clear
+                        }} edge="end" aria-label="delete">
+                            <DeleteIcon />
                         </IconButton>
-                    </ListItemSecondaryAction>
+                    </ListItemSecondaryAction>}
+                    <Divider />
                 </ListItem>
-                {cartState.cart.products.map((cartProduct, index) => (
-                    <ListItem href={cartProduct.url} target={'_blank'} rel="noreferrer" sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} component={'a'} onClick={(e) => {
-                        e.stopPropagation();
-                    }}   >
-                        <Grid container spacing={1}>
-                            <Grid item xs={2}>
-                                <Image src={cartProduct.image} style={{ width: '100%' }} />
-                            </Grid>
-                            <Grid item xs={6}>
-                                <ListItemText primary={`${cartProduct.name}[${TextHelper.titleCase(TextHelper.removeUnderscore(cartProduct.vendor))}] ${cartProduct.quantity > 1 ? `(${cartProduct.quantity})` : ''}`} secondary={`$${cartProduct.price}`} />
-                            </Grid>
-                        </Grid>
-                        <ListItemSecondaryAction>
-                            <IconButton onClick={() => {
-                                dispatch({
-                                    type: CART_ACTIONS.REMOVE_PRODUCT,
-                                    product: cartProduct,
-                                });
-                            }} edge="end" aria-label="delete">
-                                <DeleteIcon />
-                            </IconButton>
-                        </ListItemSecondaryAction>
-                        <Divider />
-                    </ListItem>
-                ))}
-                {cartState.cart.totalItems ?
-                    <ListItem sx={{ backgroundColor: 'black', color: 'white' }}>
-                        <ListItemText primary={`Total: $${cartState.cart.total}`} />
-                    </ListItem>
-                    :
-                    <ListItem
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: '100%',
-                        }}>
-                        <ListItemText primary={`Cart is empty`} />
-                    </ListItem>
-                }
-            </List>
-        </Box>
-    );
+            ))
+        }
+            {cart.totalItems ?
+                <ListItem sx={{ backgroundColor: 'black', color: 'white' }}>
+                    <ListItemText primary={`Total: $${cart.total}`} />
+                </ListItem>
+                :
+                <ListItem
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                    }}>
+                    <ListItemText primary={`Cart is empty`} />
+                </ListItem>
+            }
+        </>);
+}
 
+const CartComponent = ({ cartState, toggleCart }: { cartState: CartState, toggleCart: Function }) => {
+    const dispatch = useDispatch();
+    return (<Box
+        sx={{ width: '40vw' }}
+        role="presentation"
+        onKeyDown={() => toggleCart()}
+    >
+        <List>
+            <ListItem>
+                <ListItemText primary="Cart" />
+                <ListItemSecondaryAction>
+                    <Grid container>
+                        <Grid item xs={4}>
+                            <Button hidden={!cartState.cart.products.length} disabled={!cartState.cart.products.length} onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch({
+                                    type: CART_ACTIONS.SAVE_CART_SNAPSHOT,
+                                });
+                            }}>
+                                Save
+                            </Button>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Button disabled={!cartState.cart.products.length} onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch({
+                                    type: CART_ACTIONS.CLEAR_CART,
+                                });
+                            }}>
+                                Clear
+                            </Button>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" color="text.secondary">
+                                Total Items: {cartState.cart.totalItems}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+
+                </ListItemSecondaryAction>
+            </ListItem>
+            <CartList cart={cartState.cart} useAddProduct={true} />
+
+        </List>
+    </Box>);
+}
+
+const CompareModelContent = () => {
+    const prevCartSnapshots = useSelector((state: ReduxInitialStoreState) => state.cart.prevCartSnapshots);
+    const dispatch = useDispatch();
+    return (
+        <Grid container>
+            {
+                prevCartSnapshots.map((cart, index) => (
+                    <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : 12} key={'cart_' + index}>
+                        <Container>
+                            <Button onClick={() => {
+                                dispatch({
+                                    type: CART_ACTIONS.RESTORE_CART_SNAPSHOT,
+                                    cartIndex: index,
+                                })
+                            }}>Edit</Button>
+                            <CartList cart={cart} useAddProduct={false} />
+                        </Container>
+                    </Grid>
+                ))
+            }
+        </Grid>
+    )
+}
+
+const Header = () => {
+    const cartState = useSelector((state: ReduxInitialStoreState) => state.cart ?? { cart: { totalItems: 0 } });
+    const [cartOpen, setCartOpen] = useState<boolean>(false);
+    const [compartOpen, setCompareOpen] = useState<boolean>(false);
+    const toggleCart = () => setCartOpen(!cartOpen);
     return (
         <AppBar style={{ backgroundColor: 'black' }}>
             <Container maxWidth="xl">
@@ -312,15 +381,36 @@ const Header = () => {
                             </Badge>
                         </IconButton>
                     </Box>
+                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                        <IconButton
+                            size="large"
+                            edge="start"
+                            color="inherit"
+                            aria-label="open drawer"
+                            sx={{ mr: 2, }}
+                            disabled={!cartState.prevCartSnapshots.length}
+                            onClick={() => setCompareOpen(true)}
+                        >
+                            <Badge badgeContent={cartState.prevCartSnapshots.length} color="secondary">
+                                <DifferenceIcon />
+                            </Badge>
+                        </IconButton>
+                    </Box>
                     <Drawer
                         anchor={'right'}
                         open={cartOpen}
                         onClose={() => toggleCart()}
                     >
-                        {cart()}
+                        <CartComponent cartState={cartState} toggleCart={toggleCart} />
                     </Drawer>
                 </Toolbar>
             </Container>
+            <EnhancedModal dialogTitle='Compare Carts' dialogContent={<CompareModelContent />} isOpen={compartOpen} options={{
+                disableSubmit: true,
+                onClose() {
+                    setCompareOpen(false);
+                },
+            }} />
         </AppBar >
     );
 }
@@ -329,7 +419,6 @@ const Header = () => {
 const sortProductByAveragePrice = (a: Product, b: Product, searchTerm: string) => {
     const aPrice = a.info.reduce((acc, cur) => acc + parseFloat(cur.price.replace(`$`, '').replace(',', '')), 0) / a.info.length;
     const bPrice = b.info.reduce((acc, cur) => acc + parseFloat(cur.price.replace(`$`, '').replace(',', '')), 0) / b.info.length;
-
     if ((a.name.toLowerCase().includes(searchTerm.toLowerCase()) && b.name.toLowerCase().includes(searchTerm.toLowerCase())) || a.name.toLowerCase().includes(searchTerm.toLowerCase())) {
         return aPrice - bPrice;
     }
