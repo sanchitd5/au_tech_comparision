@@ -5,7 +5,6 @@ import NotificationComponent from 'components/Notification';
 import { ThemeManager } from 'theme';
 
 
-
 const App: React.FC = () => {
   return (
     <ReduxWrapper>

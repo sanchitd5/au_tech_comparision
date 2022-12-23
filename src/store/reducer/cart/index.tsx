@@ -106,6 +106,21 @@ const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: P
                 prevCartSnapshots: prevCartSnapshots,
             };
         }
+        case CART_ACTIONS.COPY_CART_SNAPSHOT: {
+            const prevCartSnapshots = state.prevCartSnapshots;
+            if (!prevCartSnapshots.length) {
+                throw new Error('No cart snapshots');
+            }
+            if (action.cartIndex === undefined) {
+                throw new Error('No cart index');
+            }
+            const cart = prevCartSnapshots[action.cartIndex];
+            return {
+                ...state,
+                cart: cart,
+                prevCartSnapshots: prevCartSnapshots,
+            };
+        }
         case CART_ACTIONS.CLEAR_CART: {
             return {
                 ...state,

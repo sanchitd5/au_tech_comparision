@@ -4,14 +4,14 @@ import Grid from '@mui/material/Grid';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import ReduxInitialStoreState, { Cart, CartState } from 'store/baseStore';
-import { Box, Divider, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader, Typography, useForkRef } from '@mui/material';
+import { Box, Divider, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader, Typography } from '@mui/material';
 import { Image } from 'components/Media/Media';
 import { CART_ACTIONS } from 'store/enums/cart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TextHelper } from 'helpers';
 import { RemoveShoppingCartOutlined, Save } from '@mui/icons-material';
 import { useReactToPrint } from 'react-to-print';
-import { useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 
 export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: boolean }) => {
@@ -109,6 +109,7 @@ export const CartComponent = ({ cartState, toggleCart }: { cartState: CartState,
 }
 
 export const CompareCartModelContent = () => {
+    const [printing, setPrinting] = useState<boolean>(false);
     const prevCartSnapshots = useSelector((state: ReduxInitialStoreState) => state.cart.prevCartSnapshots);
     const dispatch = useDispatch();
     const ref = useRef();
@@ -116,20 +117,47 @@ export const CompareCartModelContent = () => {
         content: () => ref.current!,
     });
 
+    const printCart = useCallback(() => {
+        setPrinting(true);
+        setTimeout(() => {
+            handlePrint();
+            setTimeout(() => {
+                setPrinting(false);
+            }, 200);
+        }, 200);
+    }, [handlePrint])
+
     return (<>
-        <Button variant='contained' onClick={handlePrint}>Print</Button>
+        <Button variant='contained' onClick={printCart}>Print</Button>
         <Box ref={ref}>
-            <Grid container>
+            <Grid container padding={printing ? 2 : 0} spacing={printing ? 2 : 0}>
+                <Grid hidden={!printing} item xs={12}>
+                    <Typography variant='h6'>
+                        {`Cart comparision`}
+                    </Typography>
+                </Grid>
                 {
                     prevCartSnapshots.map((cart, index) => (
                         <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : (prevCartSnapshots.length % 3 === 0 ? 4 : 12)} key={'cart_' + index}>
                             <Container>
-                                <Button onClick={() => {
-                                    dispatch({
-                                        type: CART_ACTIONS.RESTORE_CART_SNAPSHOT,
-                                        cartIndex: index,
-                                    })
-                                }}>Edit</Button>
+                                {!printing && <>
+                                    <Button onClick={() => {
+                                        dispatch({
+                                            type: CART_ACTIONS.RESTORE_CART_SNAPSHOT,
+                                            cartIndex: index,
+                                        })
+                                    }}>
+                                        Edit
+                                    </Button>
+                                    <Button onClick={() => {
+                                        dispatch({
+                                            type: CART_ACTIONS.COPY_CART_SNAPSHOT,
+                                            cartIndex: index,
+                                        })
+                                    }}>
+                                        Copy To Cart
+                                    </Button>
+                                </>}
                                 <CartList cart={cart} useAddProduct={false} />
                             </Container>
                         </Grid>
