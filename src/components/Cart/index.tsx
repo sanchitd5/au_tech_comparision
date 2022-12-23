@@ -13,19 +13,20 @@ import { TextHelper } from 'helpers';
 export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: boolean }) => {
     const dispatch = useDispatch();
     return (
-        <>
+        <div >
             {
                 cart.products.map((cartProduct, index) => (
                     <ListItem sx={{ backgroundColor: index % 2 === 0 ? 'whitesmoke' : null, color: 'black' }} key={'cartProduct_' + index} onClick={(e) => {
                         e.stopPropagation();
                     }}>
-                        <Grid href={cartProduct.url} sx={{color: 'black'}} target={'_blank'} rel="noreferrer" container component={'a'} spacing={1}>
+                        <Grid href={cartProduct.url} sx={{ color: 'black' }} target={'_blank'} rel="noreferrer" container component={'a'} spacing={1}>
                             <Grid item xs={2}>
                                 <Image src={cartProduct.image} style={{ width: '100%' }} />
                             </Grid>
                             <Grid item xs={6}>
                                 <ListItemText primary={`${cartProduct.name}[${TextHelper.titleCase(TextHelper.removeUnderscore(cartProduct.vendor))}] ${cartProduct.quantity > 1 ? `(${cartProduct.quantity})` : ''}`} secondary={`$${cartProduct.price}`} />
                             </Grid>
+                            <Divider />
                         </Grid>
                         {useAddProduct && <ListItemSecondaryAction>
                             <IconButton onClick={(e) => {
@@ -38,12 +39,11 @@ export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: b
                                 <DeleteIcon />
                             </IconButton>
                         </ListItemSecondaryAction>}
-                        <Divider />
                     </ListItem>
                 ))
             }
             {cart.totalItems ?
-                <ListItem sx={{ backgroundColor: 'black', color: 'white' }}>
+                <ListItem sx={{ backgroundColor: 'black', color: 'white', bottom: 0,}}>
                     <ListItemText primary={`Total: $${cart.total}`} />
                 </ListItem>
                 :
@@ -57,7 +57,7 @@ export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: b
                     <ListItemText primary={`Cart is empty`} />
                 </ListItem>
             }
-        </>);
+        </ div>);
 }
 
 export const CartComponent = ({ cartState, toggleCart }: { cartState: CartState, toggleCart: Function }) => {
@@ -67,7 +67,7 @@ export const CartComponent = ({ cartState, toggleCart }: { cartState: CartState,
         role="presentation"
         onKeyDown={() => toggleCart()}
     >
-        <List>
+        <List sx={{ height: '98.3vh' }}>
             <ListItem>
                 <ListItemText primary="Cart" />
                 <ListItemSecondaryAction>
@@ -98,7 +98,6 @@ export const CartComponent = ({ cartState, toggleCart }: { cartState: CartState,
                             </Typography>
                         </Grid>
                     </Grid>
-
                 </ListItemSecondaryAction>
             </ListItem>
             <CartList cart={cartState.cart} useAddProduct={true} />
@@ -114,7 +113,7 @@ export const CompareCartModelContent = () => {
         <Grid container>
             {
                 prevCartSnapshots.map((cart, index) => (
-                    <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : 12} key={'cart_' + index}>
+                    <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : (prevCartSnapshots.length % 3 === 0 ? 4 : 12)} key={'cart_' + index}>
                         <Container>
                             <Button onClick={() => {
                                 dispatch({

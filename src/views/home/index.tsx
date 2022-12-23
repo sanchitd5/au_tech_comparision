@@ -14,6 +14,7 @@ import { searchCentrecomProducts, searchComputerAllianceProducts, searchMSYProdu
 import { combineProducts, sortProductByAveragePrice } from 'helpers/data/products';
 import { Header } from 'components/Header';
 import { ProductCard } from 'components/ProductCard';
+import { LoadingCircle } from 'components/Loading';
 
 const HomeScreen: React.FC = () => {
     const [products, setProducts] = useState<Product[] | undefined>(undefined);
@@ -71,7 +72,7 @@ const HomeScreen: React.FC = () => {
                                 !searchTerm && !searching && !products && 'Please enter a product to search'
                             }
                             {
-                                searchTerm && searching && 'searching...'
+                                searchTerm && searching && <LoadingCircle />
                             }
                             {searchTerm && products && _.cloneDeep(products).sort((a, b) => sortUsingAveragePrice ? sortProductByAveragePrice(a, b, searchTerm) : 0).map((product, index) => {
                                 return <Grid item padding={2} xs={12} key={index}>

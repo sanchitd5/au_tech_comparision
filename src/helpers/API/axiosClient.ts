@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { notify } from 'components/Notification';
 
 class AxiosClient {
     baseURL: string;
@@ -23,6 +24,7 @@ class AxiosClient {
     }
 
     generateError(error: any) {
+        notify(error, 'inapp')
         return {
             success: false,
             error

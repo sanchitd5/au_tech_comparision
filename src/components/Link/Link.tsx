@@ -1,6 +1,19 @@
+import { Link as MaterialLink } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
-import MaterialLink from '@mui/material/Link';
 
-export const Link = (props: any) => {
-    return <MaterialLink {...props} component={RouterLink} />;
+interface Props {
+    to: string;
+    className?: string;
+    style?: React.CSSProperties;
+    children: React.ReactNode;
+}
+
+export const Link = (props: Props) => {
+    return (<MaterialLink
+        to={props.to}
+        className={props.className}
+        style={props.style}
+        component={RouterLink} >
+        {props.children}
+    </MaterialLink>);
 };

@@ -39,9 +39,9 @@ export const Header = () => {
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         <IconButton
                             size="large"
-                            edge="start"
+                            edge="end"
                             color="inherit"
-                            aria-label="open drawer"
+                            aria-label="open cart"
                             sx={{ mr: 2 }}
                             onClick={() => toggleCart()}
                         >
@@ -50,12 +50,12 @@ export const Header = () => {
                             </Badge>
                         </IconButton>
                     </Box>
-                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                    {!!cartState.prevCartSnapshots.length && <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         <IconButton
                             size="large"
-                            edge="start"
+                            edge="end"
                             color="inherit"
-                            aria-label="open drawer"
+                            aria-label="compare carts"
                             sx={{ mr: 2, }}
                             disabled={!cartState.prevCartSnapshots.length}
                             onClick={() => setCompareOpen(true)}
@@ -64,7 +64,7 @@ export const Header = () => {
                                 <DifferenceIcon />
                             </Badge>
                         </IconButton>
-                    </Box>
+                    </Box>}
                     <Drawer
                         anchor={'right'}
                         open={cartOpen}
