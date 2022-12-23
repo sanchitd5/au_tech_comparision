@@ -1,4 +1,5 @@
 
+import _ from "lodash";
 import { CART_ACTIONS } from "store/enums/cart";
 import { CartProduct, Product, ProductVendor } from "types";
 import { CartState, INITIAL_CART_STATE } from "../../baseStore";
@@ -87,7 +88,7 @@ const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: P
                     total: 0,
                     totalItems: 0
                 },
-                prevCartSnapshots: prevCartSnapshots
+                prevCartSnapshots: _.cloneDeep(prevCartSnapshots)
             };
         }
         case CART_ACTIONS.RESTORE_CART_SNAPSHOT: {
@@ -98,7 +99,7 @@ const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: P
             if (action.cartIndex === undefined) {
                 throw new Error('No cart index');
             }
-            const cart = prevCartSnapshots[action.cartIndex];
+            const cart = _.cloneDeep(prevCartSnapshots[action.cartIndex]);
             prevCartSnapshots.splice(action.cartIndex, 1)
             return {
                 ...state,
@@ -114,11 +115,11 @@ const userReducer = (state: CartState = INITIAL_CART_STATE, action: { product: P
             if (action.cartIndex === undefined) {
                 throw new Error('No cart index');
             }
-            const cart = prevCartSnapshots[action.cartIndex];
+            const cart = _.cloneDeep(prevCartSnapshots[action.cartIndex]);
             return {
                 ...state,
                 cart: cart,
-                prevCartSnapshots: prevCartSnapshots,
+                prevCartSnapshots: _.cloneDeep(prevCartSnapshots),
             };
         }
         case CART_ACTIONS.CLEAR_CART: {
