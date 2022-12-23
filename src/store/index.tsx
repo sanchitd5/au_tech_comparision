@@ -10,6 +10,7 @@ import appReducer from "./reducer/app";
 import cartReducer from "./reducer/cart";
 import ApplicationConfiguration from "config";
 import { PersistGate } from 'reduxjs-toolkit-persist/integration/react'
+import { THEMES } from "./enums/app";
 
 const persistConfig = {
   key: 'root',
@@ -26,6 +27,13 @@ export const initialState: ReduxInitialStoreState = {
     darkMode: false,
     bypassLogin: ApplicationConfiguration.bypassAuth ?? false,
     useAuth: ApplicationConfiguration.useAuth ?? true,
+    theme: {
+      compact: false,
+      direction: 'ltr',
+      responsiveFontSizes: true,
+      roundedCorners: true,
+      theme: ApplicationConfiguration.theme ?? THEMES.LIGHT
+    },
   },
   cart: INITIAL_CART_STATE
 };

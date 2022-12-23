@@ -49,13 +49,13 @@ export const msySearchProductHTMLNodeToProduct = (node: HTMLElement) => {
     return product;
 }
 
-export const computerAllianceSearchProductHTMLNodeToProduct = (node: HTMLElement) => {
+export const computerAllianceSearchProductHTMLNodeToProduct = (node: HTMLElement) => { 
     const product: Product = {
         name: node.querySelector('.equalize')?.text ?? '',
         info: [{
             originalPrice: parseFloat('0'),
             price: node.querySelector('.price')?.text ?? '0',
-            url: 'https://www.computeralliance.com.au/' + node.querySelector('.product')?.querySelector('a')?.getAttribute('href') ?? '',
+            url: 'https://www.computeralliance.com.au/' + node.querySelector('a')?.getAttribute('href') ?? '',
             inStock: node.querySelector('.instock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
             vendor: ProductVendor.COMPUTER_ALLIANCE,
             description: node.querySelector('.equalize')?.text ?? '',

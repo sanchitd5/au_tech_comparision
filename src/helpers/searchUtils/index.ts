@@ -8,8 +8,8 @@ import {
 } from 'helpers/parsers';
 import WebScrapper from 'helpers/Scrapper/scrapper';
 
-
 export const searchPcCaseGearProducts = async (searchTerm: string) => {
+
     const response = await axios.create({
         baseURL: 'https://hpd3dbj2io-3.algolianet.com/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)&x-algolia-application-id=HPD3DBJ2IO&x-algolia-api-key=9559cf1a6c7521a30ba0832ec6c38499',
     }).post('', `{"requests":[{"indexName":"pccg_products","params":"query=${searchTerm}&maxValuesPerFacet=128&page=0&highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&clickAnalytics=true&facets=%5B%22manufacturers_name%22%2C%22indicator.filter%22%2C%22products_price%22%2C%22categories.lvl0%22%5D&tagFilters="}]}`);

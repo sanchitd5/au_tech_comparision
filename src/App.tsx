@@ -1,18 +1,18 @@
-import { createTheme, ThemeProvider } from '@mui/material';
 import React from 'react';
 import { ReduxWrapper } from './store';
 import Routes from './routes';
 import NotificationComponent from 'components/Notification';
+import { ThemeManager } from 'theme';
 
-const theme = createTheme();
+
 
 const App: React.FC = () => {
   return (
     <ReduxWrapper>
-      <ThemeProvider theme={theme}>
+      <ThemeManager>
         <Routes />
         <NotificationComponent />
-      </ThemeProvider>
+      </ThemeManager>
     </ReduxWrapper>
   );
 }

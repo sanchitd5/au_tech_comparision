@@ -15,14 +15,14 @@ import { combineProducts, sortProductByAveragePrice } from 'helpers/data/product
 import { Header } from 'components/Header';
 import { ProductCard } from 'components/ProductCard';
 import { LoadingCircle } from 'components/Loading';
+import { notify } from 'components/Notification';
 
 const HomeScreen: React.FC = () => {
     const [products, setProducts] = useState<Product[] | undefined>(undefined);
     const [sortUsingAveragePrice, setSortUsingAveragePrice] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
     const [searching, setSearching] = useState<boolean>(false);
-    const useAuth = useSelector((state: ReduxInitialStoreState) => state.appConfig.useAuth)
-
+    const useAuth = useSelector((state: ReduxInitialStoreState) => state.appConfig.useAuth);
     const dispatch = useDispatch();
     const searchAllVendors = useCallback(async (searchTerm: string) => {
         setSearching(true);
@@ -38,7 +38,8 @@ const HomeScreen: React.FC = () => {
         let products: Product[] = [];
         values.forEach(v => {
             if (v.status === 'rejected') {
-                console.error(v.reason)
+                console.error(v.reason);
+                notify(v.reason, 'inapp');
             }
             if (v.status === 'fulfilled') {
                 products.push(...v.value)
@@ -46,6 +47,7 @@ const HomeScreen: React.FC = () => {
         })
         setProducts(combineProducts(products))
     }, []);
+
     useKeyPress('Enter', () => searchTerm && searchAllVendors(searchTerm));
     return (
         <main>

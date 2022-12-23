@@ -4,11 +4,15 @@ import Grid from '@mui/material/Grid';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import ReduxInitialStoreState, { Cart, CartState } from 'store/baseStore';
-import { Box, Divider, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Typography } from '@mui/material';
+import { Box, Divider, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader, Typography, useForkRef } from '@mui/material';
 import { Image } from 'components/Media/Media';
 import { CART_ACTIONS } from 'store/enums/cart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TextHelper } from 'helpers';
+import { RemoveShoppingCartOutlined, Save } from '@mui/icons-material';
+import { useReactToPrint } from 'react-to-print';
+import { useRef } from 'react';
+
 
 export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: boolean }) => {
     const dispatch = useDispatch();
@@ -29,7 +33,7 @@ export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: b
                             <Divider />
                         </Grid>
                         {useAddProduct && <ListItemSecondaryAction>
-                            <IconButton onClick={(e) => {
+                            <IconButton sx={{ color: 'darkred' }} onClick={(e) => {
                                 e.stopPropagation();
                                 dispatch({
                                     type: CART_ACTIONS.REMOVE_PRODUCT,
@@ -43,7 +47,7 @@ export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: b
                 ))
             }
             {cart.totalItems ?
-                <ListItem sx={{ backgroundColor: 'black', color: 'white', bottom: 0,}}>
+                <ListItem sx={{ backgroundColor: 'black', color: 'white', bottom: 0, }}>
                     <ListItemText primary={`Total: $${cart.total}`} />
                 </ListItem>
                 :
@@ -68,38 +72,36 @@ export const CartComponent = ({ cartState, toggleCart }: { cartState: CartState,
         onKeyDown={() => toggleCart()}
     >
         <List sx={{ height: '98.3vh' }}>
-            <ListItem>
-                <ListItemText primary="Cart" />
-                <ListItemSecondaryAction>
-                    <Grid container>
-                        <Grid item xs={4}>
-                            <Button hidden={!cartState.cart.products.length} disabled={!cartState.cart.products.length} onClick={(e) => {
-                                e.stopPropagation();
-                                dispatch({
-                                    type: CART_ACTIONS.SAVE_CART_SNAPSHOT,
-                                });
-                            }}>
-                                Save
-                            </Button>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Button disabled={!cartState.cart.products.length} onClick={(e) => {
-                                e.stopPropagation();
-                                dispatch({
-                                    type: CART_ACTIONS.CLEAR_CART,
-                                });
-                            }}>
-                                Clear
-                            </Button>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" color="text.secondary">
-                                Total Items: {cartState.cart.totalItems}
-                            </Typography>
-                        </Grid>
+            <ListSubheader component="div" id="nested-list-subheader">
+                <Grid container>
+                    <Grid item xs={10}>
+                        <Typography variant='h6'>
+                            {`Cart (${cartState.cart.totalItems})`}
+                        </Typography>
                     </Grid>
-                </ListItemSecondaryAction>
-            </ListItem>
+                    <Grid item xs={1}>
+                        <IconButton disabled={!cartState.cart.products.length} onClick={(e) => {
+                            e.stopPropagation();
+                            dispatch({
+                                type: CART_ACTIONS.SAVE_CART_SNAPSHOT,
+                            });
+                        }}>
+                            <Save />
+                        </IconButton>
+                    </Grid>
+                    <Grid item xs={1}>
+                        <IconButton disabled={!cartState.cart.products.length} onClick={(e) => {
+                            e.stopPropagation();
+                            dispatch({
+                                type: CART_ACTIONS.CLEAR_CART,
+                            });
+                        }}>
+                            <RemoveShoppingCartOutlined />
+                        </IconButton>
+                    </Grid>
+
+                </Grid>
+            </ListSubheader>
             <CartList cart={cartState.cart} useAddProduct={true} />
 
         </List>
@@ -109,23 +111,32 @@ export const CartComponent = ({ cartState, toggleCart }: { cartState: CartState,
 export const CompareCartModelContent = () => {
     const prevCartSnapshots = useSelector((state: ReduxInitialStoreState) => state.cart.prevCartSnapshots);
     const dispatch = useDispatch();
-    return (
-        <Grid container>
-            {
-                prevCartSnapshots.map((cart, index) => (
-                    <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : (prevCartSnapshots.length % 3 === 0 ? 4 : 12)} key={'cart_' + index}>
-                        <Container>
-                            <Button onClick={() => {
-                                dispatch({
-                                    type: CART_ACTIONS.RESTORE_CART_SNAPSHOT,
-                                    cartIndex: index,
-                                })
-                            }}>Edit</Button>
-                            <CartList cart={cart} useAddProduct={false} />
-                        </Container>
-                    </Grid>
-                ))
-            }
-        </Grid>
+    const ref = useRef();
+    const handlePrint = useReactToPrint({
+        content: () => ref.current!,
+    });
+
+    return (<>
+        <Button variant='contained' onClick={handlePrint}>Print</Button>
+        <Box ref={ref}>
+            <Grid container>
+                {
+                    prevCartSnapshots.map((cart, index) => (
+                        <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : (prevCartSnapshots.length % 3 === 0 ? 4 : 12)} key={'cart_' + index}>
+                            <Container>
+                                <Button onClick={() => {
+                                    dispatch({
+                                        type: CART_ACTIONS.RESTORE_CART_SNAPSHOT,
+                                        cartIndex: index,
+                                    })
+                                }}>Edit</Button>
+                                <CartList cart={cart} useAddProduct={false} />
+                            </Container>
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        </Box>
+    </>
     )
 }

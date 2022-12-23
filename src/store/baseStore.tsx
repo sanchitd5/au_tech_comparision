@@ -1,5 +1,6 @@
 import ApplicationConfiguration from "config";
 import { CartProduct } from "types";
+import { THEMES } from "./enums/app";
 
 export interface UserState {
   accessToken: string | null | undefined;
@@ -11,10 +12,19 @@ export const INITIAL_USER_STATE: UserState = {
   loginStatus: false,
 };
 
+export interface ThemeConfig {
+  theme: THEMES;
+  compact: boolean;
+  direction: 'ltr' | 'rtl';
+  responsiveFontSizes: boolean;
+  roundedCorners: boolean;
+}
+
 export interface AppState {
   readonly darkMode: boolean;
   readonly bypassLogin: boolean;
   readonly useAuth: boolean;
+  readonly theme: ThemeConfig;
 }
 
 export interface Cart {
@@ -41,6 +51,13 @@ export const INITIAL_APP_STATE: AppState = {
   darkMode: false,
   bypassLogin: ApplicationConfiguration.bypassAuth ?? false,
   useAuth: ApplicationConfiguration.useAuth ?? true,
+  theme: {
+    compact: false,
+    direction: 'ltr',
+    responsiveFontSizes: true,
+    roundedCorners: true,
+    theme: THEMES.LIGHT
+  }
 };
 
 export default interface ReduxInitialStoreState {

@@ -33,6 +33,7 @@ specifiers:
   react-redux: ^8.0.5
   react-router-dom: ^6.5.0
   react-scripts: 5.0.1
+  react-to-print: ^2.14.10
   react-window: ^1.8.8
   redux: ^4.2.0
   reduxjs-toolkit-persist: ^7.2.1
@@ -60,6 +61,7 @@ dependencies:
   react-redux: 8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq
   react-router-dom: 6.5.0_biqbaboplfbrettd7655fr4n2y
   react-scripts: 5.0.1_o77wnou4wwnegu5woljtklrzru
+  react-to-print: 2.14.10_biqbaboplfbrettd7655fr4n2y
   react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
   redux: 4.2.0
   reduxjs-toolkit-persist: 7.2.1_@reduxjs+toolkit@1.9.1
@@ -8926,6 +8928,17 @@ packages:
       - webpack-cli
       - webpack-hot-middleware
       - webpack-plugin-serve
+    dev: false
+
+  /react-to-print/2.14.10_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-XJyhDWH/xxgHy5nIBYPXjVidoroq0qRHqTrVF5QbfohPkMx3q8x3H3+Lv7gSq9uA0csAbjkSU0J4mWgj64f6yQ==}
+    peerDependencies:
+      react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react-transition-group/4.4.5_biqbaboplfbrettd7655fr4n2y:
