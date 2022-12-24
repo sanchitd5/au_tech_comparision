@@ -27,7 +27,6 @@ const HomeScreen: React.FC = () => {
     const searchAllVendors = useCallback(async (searchTerm: string) => {
         setSearching(true);
         setProducts(undefined);
-
         const values = await Promise.allSettled(SearchIntegrations.map((i) => i(searchTerm)))
         setSearching(false);
         let products: Product[] = [];
@@ -57,8 +56,8 @@ const HomeScreen: React.FC = () => {
                             setSearchTerm(val.target.value);
                         }} />
                     </Grid>
-                    <Grid item xs={2}>
-                        <Button onClick={() => searchTerm && searchAllVendors(searchTerm)} variant='contained'>Search</Button>
+                    <Grid item xs={1}>
+                        <Button onClick={() => searchTerm && searchAllVendors(searchTerm)} fullWidth variant='contained'>Search</Button>
                     </Grid>
                     <Grid item xs={2}>
                         <FormControlLabel control={<Checkbox value={sortUsingAveragePrice} onChange={(e) => setSortUsingAveragePrice((prev) => !prev)} />} label={'Sort by average price'} />
@@ -72,7 +71,7 @@ const HomeScreen: React.FC = () => {
                                 searchTerm && searching && <LoadingCircle />
                             }
                             {searchTerm && products && _.cloneDeep(products).sort((a, b) => sortUsingAveragePrice ? sortProductByAveragePrice(a, b, searchTerm) : 0).map((product, index) => {
-                                return <Grid item padding={2} xs={12} key={index}>
+                                return <Grid item padding={2} xs={12} md={6} lg={6} key={index}>
                                     <ProductCard product={product} />
                                 </Grid>
                             })}

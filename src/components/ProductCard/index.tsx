@@ -1,39 +1,46 @@
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import { useDispatch } from 'react-redux';
-import { Card, Divider, Typography } from '@mui/material';
+import { Card, Chip, Divider, IconButton, Typography } from '@mui/material';
 import { Image } from 'components/Media/Media';
 import _ from 'lodash';
 import { Product, ProductInfo } from 'types';
 import { CART_ACTIONS } from 'store/enums/cart';
 import { TextHelper } from 'helpers';
+import { AddShoppingCart, Launch } from '@mui/icons-material';
 
 export const ProductInfoArea = ({ info, key, addProduct }: { info: _.Omit<ProductInfo, 'price'> & { price: number }, key: any, addProduct: Function }) => {
     return (
         <Grid item xs={12} spacing={1} key={key} >
-            <Grid container padding={1} sx={{
+            <Grid container padding={1} alignContent='center' alignItems='center' sx={{
                 border: '1px solid #e0e0e0',
+
             }}>
-                <Grid item xs={3}>
-                    <Typography >
+                <Grid item xs={4}>
+                    <Typography component={'a'}
+                        sx={{
+                            color: 'black',
+                            textDecoration: 'none',
+                            '&:hover': {
+                                textDecoration: 'underline',
+                            },
+                        }} href={info.url} target={'_blank'} rel="noreferrer" >
                         {TextHelper.titleCase(TextHelper.removeUnderscore(info.vendor))}
                     </Typography>
+                </Grid>
+                <Grid item xs={3}>
+                    <Chip sx={{ background: info.inStock ? null : 'darkred', color: info.inStock ? null : 'white', width: '100%', }} label={info.inStock ? 'In Stock' : 'Out of Stock'} />
                 </Grid>
                 <Grid item xs={3}>
                     <Typography>
                         ${info.price}
                     </Typography>
                 </Grid>
-                <Grid item xs={2}>
-                    <Typography color={info.inStock ? 'green' : 'red'}>
-                        {info.inStock ? 'In Stock' : 'Out of Stock'}
-                    </Typography>
-                </Grid>
+
                 <Grid item xs={2} padding={1}>
-                    <Button LinkComponent={'a'} variant='outlined' href={info.url} target={'_blank'} rel="noreferrer">View</Button>
-                </Grid>
-                <Grid item xs={2} padding={1}>
-                    <Button variant='contained' onClick={() => addProduct()}>Add To Cart</Button>
+                    <IconButton disabled={!info.inStock} onClick={() => addProduct()}>
+                        <AddShoppingCart />
+                    </IconButton>
                 </Grid>
                 <Grid item xs={12}>
                     <Typography>
@@ -41,7 +48,7 @@ export const ProductInfoArea = ({ info, key, addProduct }: { info: _.Omit<Produc
                     </Typography>
                 </Grid>
             </Grid>
-        </Grid>
+        </Grid >
     )
 }
 
