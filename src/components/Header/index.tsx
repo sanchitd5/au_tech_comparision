@@ -25,7 +25,6 @@ export const Header = () => {
                         href="/"
                         sx={{
                             mr: 2,
-                            display: { xs: 'none', md: 'flex' },
                             fontFamily: 'monospace',
                             fontWeight: 700,
                             letterSpacing: '.3rem',
@@ -36,7 +35,7 @@ export const Header = () => {
                         Au Computer parts aggegator
                     </Typography>
                     <Box sx={{ flexGrow: 1 }} />
-                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                    <Box >
                         <IconButton
                             size="large"
                             edge="end"
@@ -50,7 +49,7 @@ export const Header = () => {
                             </Badge>
                         </IconButton>
                     </Box>
-                    {!!cartState.prevCartSnapshots.length && <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                    {!!cartState.prevCartSnapshots.length && <Box >
                         <IconButton
                             size="large"
                             edge="end"
