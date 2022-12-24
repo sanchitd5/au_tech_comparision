@@ -10,7 +10,7 @@ import _ from 'lodash';
 import { Product } from 'types';
 import { useKeyPress } from 'hooks';
 import Checkbox from '@mui/material/Checkbox';
-import { searchCentrecomProducts, searchComputerAllianceProducts, searchMSYProducts, searchPcCaseGearProducts, searchScorptecProducts } from 'helpers/searchUtils';
+import SearchIntegrations from 'helpers/searchUtils';
 import { combineProducts, sortProductByAveragePrice } from 'helpers/data/products';
 import { Header } from 'components/Header';
 import { ProductCard } from 'components/ProductCard';
@@ -27,13 +27,8 @@ const HomeScreen: React.FC = () => {
     const searchAllVendors = useCallback(async (searchTerm: string) => {
         setSearching(true);
         setProducts(undefined);
-        const values = await Promise.allSettled([
-            searchScorptecProducts(searchTerm),
-            searchCentrecomProducts(searchTerm),
-            searchMSYProducts(searchTerm),
-            searchPcCaseGearProducts(searchTerm),
-            searchComputerAllianceProducts(searchTerm),
-        ])
+
+        const values = await Promise.allSettled(SearchIntegrations.map((i) => i(searchTerm)))
         setSearching(false);
         let products: Product[] = [];
         values.forEach(v => {

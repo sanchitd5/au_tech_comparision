@@ -10,8 +10,7 @@ import { CART_ACTIONS } from 'store/enums/cart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TextHelper } from 'helpers';
 import { RemoveShoppingCartOutlined, Save } from '@mui/icons-material';
-import { useReactToPrint } from 'react-to-print';
-import { useCallback, useRef, useState } from 'react';
+import { MutableRefObject, } from 'react';
 
 
 export const CartList = ({ cart, useAddProduct }: { cart: Cart, useAddProduct: boolean }) => {
@@ -108,63 +107,43 @@ export const CartComponent = ({ cartState, toggleCart }: { cartState: CartState,
     </Box>);
 }
 
-export const CompareCartModelContent = () => {
-    const [printing, setPrinting] = useState<boolean>(false);
+export const CompareCartModelContent = ({ printing, printingRef }: { printing: boolean, printingRef: MutableRefObject<undefined> }) => {
     const prevCartSnapshots = useSelector((state: ReduxInitialStoreState) => state.cart.prevCartSnapshots);
     const dispatch = useDispatch();
-    const ref = useRef();
-    const handlePrint = useReactToPrint({
-        content: () => ref.current!,
-    });
-
-    const printCart = useCallback(() => {
-        setPrinting(true);
-        setTimeout(() => {
-            handlePrint();
-            setTimeout(() => {
-                setPrinting(false);
-            }, 200);
-        }, 200);
-    }, [handlePrint])
-
-    return (<>
-        <Button variant='contained' onClick={printCart}>Print</Button>
-        <Box ref={ref}>
-            <Grid container padding={printing ? 2 : 0} spacing={printing ? 2 : 0}>
-                <Grid hidden={!printing} item xs={12}>
-                    <Typography variant='h6'>
-                        {`Cart comparision`}
-                    </Typography>
-                </Grid>
-                {
-                    prevCartSnapshots.map((cart, index) => (
-                        <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : (prevCartSnapshots.length % 3 === 0 ? 4 : 12)} key={'cart_' + index}>
-                            <Container>
-                                {!printing && <>
-                                    <Button onClick={() => {
-                                        dispatch({
-                                            type: CART_ACTIONS.RESTORE_CART_SNAPSHOT,
-                                            cartIndex: index,
-                                        })
-                                    }}>
-                                        Edit
-                                    </Button>
-                                    <Button onClick={() => {
-                                        dispatch({
-                                            type: CART_ACTIONS.COPY_CART_SNAPSHOT,
-                                            cartIndex: index,
-                                        })
-                                    }}>
-                                        Copy To Cart
-                                    </Button>
-                                </>}
-                                <CartList cart={cart} useAddProduct={false} />
-                            </Container>
-                        </Grid>
-                    ))
-                }
+    return (<Box ref={printingRef}>
+        <Grid container padding={printing ? 2 : 0} spacing={printing ? 2 : 0}>
+            <Grid hidden={!printing} item xs={12}>
+                <Typography variant='h6'>
+                    {`Cart comparision`}
+                </Typography>
             </Grid>
-        </Box>
-    </>
-    )
+            {
+                prevCartSnapshots.map((cart, index) => (
+                    <Grid item xs={prevCartSnapshots.length % 2 === 0 ? 6 : (prevCartSnapshots.length % 3 === 0 ? 4 : 12)} key={'cart_' + index}>
+                        <Container>
+                            {!printing && <>
+                                <Button onClick={() => {
+                                    dispatch({
+                                        type: CART_ACTIONS.RESTORE_CART_SNAPSHOT,
+                                        cartIndex: index,
+                                    })
+                                }}>
+                                    Edit
+                                </Button>
+                                <Button onClick={() => {
+                                    dispatch({
+                                        type: CART_ACTIONS.COPY_CART_SNAPSHOT,
+                                        cartIndex: index,
+                                    })
+                                }}>
+                                    Copy To Cart
+                                </Button>
+                            </>}
+                            <CartList cart={cart} useAddProduct={false} />
+                        </Container>
+                    </Grid>
+                ))
+            }
+        </Grid>
+    </Box>);
 }

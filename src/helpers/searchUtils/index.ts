@@ -8,6 +8,27 @@ import {
 } from 'helpers/parsers';
 import WebScrapper from 'helpers/Scrapper/scrapper';
 
+
+export const searchPleComputersProducts = async (searchTerm: string) => {
+    const json = {
+        MaximumNumberOfItems: 50,
+        OnlyWebsiteSpotlight: false,
+        ReturnAttributes: true,
+        ReturnCategories: true,
+        ReturnMarketingDescription: true,
+        SearchString: searchTerm,
+    };
+    const response = await axios.create({
+        baseURL: 'https://www.ple.com.au/api/',
+    }).post('getItemGrid', json, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    console.log(response.data.data.Items);
+    return [];
+}
+
 export const searchPcCaseGearProducts = async (searchTerm: string) => {
 
     const response = await axios.create({
@@ -58,3 +79,14 @@ export const searchComputerAllianceProducts = async (searchTerm: string) => {
     const products = htmlContent?.querySelectorAll('.product') ?? [];
     return products?.map(computerAllianceSearchProductHTMLNodeToProduct) ?? []
 }
+
+
+const integrations = [
+    searchPleComputersProducts,
+    searchPcCaseGearProducts,
+    searchScorptecProducts,
+    searchCentrecomProducts,
+    searchMSYProducts,
+    searchComputerAllianceProducts
+];
+export default integrations;

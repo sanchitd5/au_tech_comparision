@@ -1,19 +1,35 @@
 
 import Container from '@mui/material/Container';
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useSelector } from 'react-redux';
 import ReduxInitialStoreState from 'store/baseStore';
-import { AppBar, Badge, Box, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
+import { AppBar, Badge, Box, Button, Drawer, Grid, IconButton, Toolbar, Typography } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DifferenceIcon from '@mui/icons-material/Difference';
 import { EnhancedModal } from 'components/EnhancedModal';
 import { CartComponent, CompareCartModelContent } from 'components/Cart';
+import { useReactToPrint } from 'react-to-print';
 
 export const Header = () => {
     const cartState = useSelector((state: ReduxInitialStoreState) => state.cart ?? { cart: { totalItems: 0 } });
     const [cartOpen, setCartOpen] = useState<boolean>(false);
     const [compartOpen, setCompareOpen] = useState<boolean>(false);
+    const [printing, setPrinting] = useState<boolean>(false);
+    const ref = useRef();
     const toggleCart = () => setCartOpen(!cartOpen);
+    const handlePrint = useReactToPrint({
+        content: () => ref.current!,
+    });
+    const printCart = useCallback(() => {
+        setPrinting(true);
+        setTimeout(() => {
+            handlePrint();
+            setTimeout(() => {
+                setPrinting(false);
+            }, 200);
+        }, 200);
+    }, [handlePrint])
+
     return (
         <AppBar style={{ backgroundColor: 'black' }}>
             <Container maxWidth="xl">
@@ -73,7 +89,18 @@ export const Header = () => {
                     </Drawer>
                 </Toolbar>
             </Container>
-            <EnhancedModal dialogTitle='Compare Carts' dialogContent={<CompareCartModelContent />} isOpen={compartOpen} options={{
+            <EnhancedModal dialogTitle={
+                <Grid container>
+                    <Grid item xs={10}>
+                        <Typography variant="h6" component="div" >
+                            Compare carts
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Button variant='contained' onClick={printCart}>Print</Button>
+                    </Grid>
+                </Grid>
+            } dialogContent={<CompareCartModelContent printing={printing} printingRef={ref} />} isOpen={compartOpen} options={{
                 disableSubmit: true,
                 onClose() {
                     setCompareOpen(false);

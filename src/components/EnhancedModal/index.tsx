@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
 /**
@@ -18,7 +18,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/
 
 interface Props {
     isOpen: boolean;
-    dialogTitle: string;
+    dialogTitle: ReactNode | string;
     dialogContent: any;
     options?: {
         submitButtonName?: string;
@@ -33,13 +33,6 @@ interface Props {
 
 export const EnhancedModal = (props: Props) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [_DialogTitle, _setDialogTitle] = useState('');
-    const [_DialogContent, _setDialogContent] = useState('');
-    const [submitButtonName, setSubmitButtonName] = useState('Submit');
-    const [cancelButtonName, setCancelButtonName] = useState('Close');
-    const [disableSubmit, setDisableSubmit] = useState(false);
-    const [disableClose, setDisableClose] = useState(false);
-    const [swapButtonColors, setSwapButtonColors] = useState(false);
     useEffect(() => {
         if (props.isOpen) {
             setIsOpen(true);
@@ -47,24 +40,6 @@ export const EnhancedModal = (props: Props) => {
             setIsOpen(false);
         }
     }, [props.isOpen]);
-    useEffect(() => {
-        if (props.dialogTitle)
-            _setDialogTitle(props.dialogTitle);
-        if (props.dialogContent)
-            _setDialogContent(props.dialogContent);
-        if (props.options) {
-            if (props.options.submitButtonName)
-                setSubmitButtonName(props.options.submitButtonName);
-            if (props.options.closeButtonName)
-                setCancelButtonName(props.options.closeButtonName);
-            if (props.options.disableSubmit)
-                setDisableSubmit(true);
-            if (props.options.disableClose)
-                setDisableClose(true);
-            if (props.options.swapButtonColors)
-                setSwapButtonColors(props.options.swapButtonColors);
-        }
-    }, [props]);
     const onClose = () => {
         setIsOpen(false);
         if (props.options !== undefined) {
@@ -82,12 +57,12 @@ export const EnhancedModal = (props: Props) => {
         }
     };
     let content = (
-        <Dialog fullWidth={true} open={isOpen} onClose={onClose} aria-labelledby="form-dialog-title"  >
-            <DialogTitle id="form-dialog-title">{_DialogTitle}</DialogTitle>
-            <DialogContent>{_DialogContent}</DialogContent>
+        <Dialog fullWidth={true} open={isOpen} onClose={onClose} aria-labelledby="form-dialog-title">
+            <DialogTitle id="form-dialog-title">{props.dialogTitle}</DialogTitle>
+            <DialogContent>{props.dialogContent}</DialogContent>
             <DialogActions>
-                {disableSubmit !== true && <Button variant="contained" onClick={onSubmit} color={swapButtonColors ? 'secondary' : 'primary'}>{submitButtonName}</Button>}
-                {disableClose !== true && <Button variant="contained" onClick={onClose} color={swapButtonColors ? 'primary' : 'secondary'}>{cancelButtonName}</Button>}
+                {!(props.options?.disableSubmit) && <Button variant="contained" onClick={onSubmit} color={props.options?.swapButtonColors ? 'secondary' : 'primary'}>{props.options?.submitButtonName ?? 'Submit'}</Button>}
+                {!(props.options?.disableClose) && <Button variant="contained" onClick={onClose} color={props.options?.swapButtonColors ? 'primary' : 'secondary'}>{props.options?.closeButtonName ?? 'Cancel'}</Button>}
             </DialogActions>
         </Dialog>
     );
