@@ -1,4 +1,4 @@
-import Button from '@mui/material/Button';
+
 import Grid from '@mui/material/Grid';
 import { useDispatch } from 'react-redux';
 import { Card, Chip, Divider, IconButton, Typography } from '@mui/material';
@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { Product, ProductInfo } from 'types';
 import { CART_ACTIONS } from 'store/enums/cart';
 import { TextHelper } from 'helpers';
-import { AddShoppingCart, Launch } from '@mui/icons-material';
+import { AddShoppingCart } from '@mui/icons-material';
 
 export const ProductInfoArea = ({ info, key, addProduct }: { info: _.Omit<ProductInfo, 'price'> & { price: number }, key: any, addProduct: Function }) => {
     return (
