@@ -51,7 +51,7 @@ const HomeScreen: React.FC = () => {
         product: Product,
     ) => {
         if (product) {
-            dispatch({ type: CART_ACTIONS.ADD_PRODUCT, payload: product });
+            dispatch({ type: CART_ACTIONS.ADD_PRODUCT, product, vendor: product.info[0].vendor });
         }
     }, [dispatch]);
 
@@ -104,19 +104,9 @@ const HomeScreen: React.FC = () => {
                 isOpen={customModalOpen}
                 dialogTitle={'Add Custom Product'}
                 dialogContent={
-                    <CustomProductEntryModalContent onChange={(productName: string, productImage: string, productInfoVendor: ProductVendor, productInfoPrice: string, productInfoDescription: string, productInfoUrl: string) => {
-                        setCustomProduct({
-                            name: productName,
-                            image: productImage,
-                            info: [{
-                                description: productInfoDescription,
-                                url: productInfoUrl,
-                                vendor: productInfoVendor,
-                                price: productInfoPrice,
-                                originalPrice: 0,
-                                inStock: true,
-                            }]
-                        });
+                    <CustomProductEntryModalContent onChange={(product) => {
+                        console.info('product', product)
+                        setCustomProduct(product);
                     }} />
                 }
                 options={{

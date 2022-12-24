@@ -1,23 +1,35 @@
 import { Grid, MenuItem, OutlinedInput, Select } from "@mui/material";
 import { useEffect, useState } from "react"
-import { ProductVendor } from "types"
+import { Product, ProductVendor } from "types"
 
 interface Props {
-    onChange: (productName: string, productImage: string, productInfoVendor: ProductVendor, productInfoPrice: string, productInfoDescription: string, productInfoUrl: string) => void;
+    onChange: (product: Product) => void;
 }
 
 export const CustomProductEntryModalContent = ({ onChange }: Props) => {
     const [productName, setProductName] = useState<string>('');
     const [productImage, setProductImage] = useState<string>('');
-    const [productInfoVendor, setProductInfoVendor] = useState<ProductVendor | undefined>();
+    const [productInfoVendor, setProductInfoVendor] = useState<ProductVendor>(ProductVendor.CUSTOM);
     const [productInfoPrice, setProductInfoPrice] = useState<string>('');
     const [productInfoDescription, setProductInfoDescription] = useState<string>('');
     const [productInfoUrl, setProductInfoUrl] = useState<string>('');
     useEffect(() => {
         if (productInfoVendor) {
-            onChange(productName, productImage, productInfoVendor!, productInfoPrice, productInfoDescription, productInfoUrl);
+            const product: Product = {
+                name: productName,
+                image: productImage,
+                info: [{
+                    description: productInfoDescription,
+                    url: productInfoUrl,
+                    vendor: productInfoVendor,
+                    price: productInfoPrice,
+                    originalPrice: 0,
+                    inStock: true,
+                }]
+            };
+            onChange(product);
         }
-    }, [productName, productImage, productInfoVendor, productInfoPrice, productInfoDescription, productInfoUrl, onChange,])
+    }, [productName, productImage, productInfoVendor, productInfoPrice, productInfoDescription, productInfoUrl])
     return (
         <Grid container spacing={1}>
             <Grid item xs={12}>
@@ -33,7 +45,7 @@ export const CustomProductEntryModalContent = ({ onChange }: Props) => {
                     }
                 }>
                     {
-                        Object.keys(ProductVendor).map((vendor) => {
+                        (Object.keys(ProductVendor) as Array<keyof typeof ProductVendor>).map((vendor) => {
                             return <MenuItem value={vendor}>{vendor}</MenuItem >
                         })
                     }
