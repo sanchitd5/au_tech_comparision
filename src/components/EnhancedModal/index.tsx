@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
 /**
@@ -32,16 +32,7 @@ interface Props {
 }
 
 export const EnhancedModal = (props: Props) => {
-    const [isOpen, setIsOpen] = useState(false);
-    useEffect(() => {
-        if (props.isOpen) {
-            setIsOpen(true);
-        } else {
-            setIsOpen(false);
-        }
-    }, [props.isOpen]);
     const onClose = () => {
-        setIsOpen(false);
         if (props.options !== undefined) {
             if (props.options.onClose !== undefined) {
                 return props.options.onClose();
@@ -49,7 +40,6 @@ export const EnhancedModal = (props: Props) => {
         }
     };
     const onSubmit = () => {
-        setIsOpen(false);
         if (props.options !== undefined) {
             if (props.options.onSubmit !== undefined) {
                 return props.options.onSubmit();
@@ -57,7 +47,7 @@ export const EnhancedModal = (props: Props) => {
         }
     };
     let content = (
-        <Dialog fullWidth={true} open={isOpen} onClose={onClose} aria-labelledby="form-dialog-title">
+        <Dialog fullWidth={true} open={props.isOpen} onClose={onClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">{props.dialogTitle}</DialogTitle>
             <DialogContent>{props.dialogContent}</DialogContent>
             <DialogActions>

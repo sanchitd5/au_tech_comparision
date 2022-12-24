@@ -4,6 +4,7 @@ export enum ProductVendor {
     CENTRECOM = 'CENTRECOM',
     PC_CASE_GEAR = 'PC_CASE_GEAR',
     COMPUTER_ALLIANCE = 'COMPUTER_ALLIANCE',
+    CUSTOM = 'CUSTOM'
 }
 
 export interface ProductInfo {

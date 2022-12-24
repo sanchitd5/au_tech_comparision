@@ -7,7 +7,7 @@ import ReduxInitialStoreState from 'store/baseStore';
 import { API_ACTIONS } from 'store/enums/login';
 import { Box, FormControlLabel, OutlinedInput } from '@mui/material';
 import _ from 'lodash';
-import { Product } from 'types';
+import { Product, ProductVendor } from 'types';
 import { useKeyPress } from 'hooks';
 import Checkbox from '@mui/material/Checkbox';
 import SearchIntegrations from 'helpers/searchUtils';
@@ -16,10 +16,15 @@ import { Header } from 'components/Header';
 import { ProductCard } from 'components/ProductCard';
 import { LoadingCircle } from 'components/Loading';
 import { notify } from 'components/Notification';
+import { EnhancedModal } from 'components/EnhancedModal';
+import { CustomProductEntryModalContent } from 'components/CustomProductEntryModal';
+import { CART_ACTIONS } from 'store/enums/cart';
 
 const HomeScreen: React.FC = () => {
     const [products, setProducts] = useState<Product[] | undefined>(undefined);
+    const [customProduct, setCustomProduct] = useState<Product | undefined>(undefined);
     const [sortUsingAveragePrice, setSortUsingAveragePrice] = useState<boolean>(false);
+    const [customModalOpen, setCustomModalOpem] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
     const [searching, setSearching] = useState<boolean>(false);
     const useAuth = useSelector((state: ReduxInitialStoreState) => state.appConfig.useAuth);
@@ -42,6 +47,14 @@ const HomeScreen: React.FC = () => {
         setProducts(combineProducts(products))
     }, []);
 
+    const addProduct = useCallback((
+        product: Product,
+    ) => {
+        if (product) {
+            dispatch({ type: CART_ACTIONS.ADD_PRODUCT, payload: product });
+        }
+    }, [dispatch]);
+
     useKeyPress('Enter', () => searchTerm && searchAllVendors(searchTerm));
     return (
         <main>
@@ -58,6 +71,9 @@ const HomeScreen: React.FC = () => {
                     </Grid>
                     <Grid item xs={1}>
                         <Button onClick={() => searchTerm && searchAllVendors(searchTerm)} fullWidth variant='contained'>Search</Button>
+                    </Grid>
+                    <Grid item xs={1}>
+                        <Button onClick={() => setCustomModalOpem(true)} fullWidth variant='contained'>Add Custom</Button>
                     </Grid>
                     <Grid item xs={2}>
                         <FormControlLabel control={<Checkbox value={sortUsingAveragePrice} onChange={(e) => setSortUsingAveragePrice((prev) => !prev)} />} label={'Sort by average price'} />
@@ -84,7 +100,38 @@ const HomeScreen: React.FC = () => {
                     </Grid>}
                 </Grid>
             </Container>
-        </main>
+            <EnhancedModal
+                isOpen={customModalOpen}
+                dialogTitle={'Add Custom Product'}
+                dialogContent={
+                    <CustomProductEntryModalContent onChange={(productName: string, productImage: string, productInfoVendor: ProductVendor, productInfoPrice: string, productInfoDescription: string, productInfoUrl: string) => {
+                        setCustomProduct({
+                            name: productName,
+                            image: productImage,
+                            info: [{
+                                description: productInfoDescription,
+                                url: productInfoUrl,
+                                vendor: productInfoVendor,
+                                price: productInfoPrice,
+                                originalPrice: 0,
+                                inStock: true,
+                            }]
+                        });
+                    }} />
+                }
+                options={{
+                    onClose: () => setCustomModalOpem(false),
+                    onSubmit: () => {
+                        if (!customProduct) {
+                            notify('Please fill out all fields', 'inapp');
+                            return;
+                        }
+                        addProduct(customProduct);
+                        setCustomModalOpem(false);
+                    }
+                }}
+            />
+        </main >
     );
 }
 
