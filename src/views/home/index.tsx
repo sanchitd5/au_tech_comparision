@@ -2,12 +2,10 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { useCallback, useState } from "react";
-import { useSelector, useDispatch } from 'react-redux';
-import ReduxInitialStoreState from 'store/baseStore';
-import { API_ACTIONS } from 'store/enums/login';
+import { useDispatch } from 'react-redux';
 import { Box, FormControlLabel, OutlinedInput } from '@mui/material';
 import _ from 'lodash';
-import { Product, ProductVendor } from 'types';
+import { Product } from 'types';
 import { useKeyPress } from 'hooks';
 import Checkbox from '@mui/material/Checkbox';
 import SearchIntegrations from 'helpers/searchUtils';
@@ -27,7 +25,6 @@ const HomeScreen: React.FC = () => {
     const [customModalOpen, setCustomModalOpem] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
     const [searching, setSearching] = useState<boolean>(false);
-    const useAuth = useSelector((state: ReduxInitialStoreState) => state.appConfig.useAuth);
     const dispatch = useDispatch();
     const searchAllVendors = useCallback(async (searchTerm: string) => {
         setSearching(true);
@@ -54,6 +51,10 @@ const HomeScreen: React.FC = () => {
             dispatch({ type: CART_ACTIONS.ADD_PRODUCT, product, vendor: product.info[0].vendor });
         }
     }, [dispatch]);
+
+    const onCustomProductChange = useCallback((product: Product) => {
+        setCustomProduct(product);
+    }, []);
 
     useKeyPress('Enter', () => searchTerm && searchAllVendors(searchTerm));
     return (
@@ -93,21 +94,13 @@ const HomeScreen: React.FC = () => {
                             })}
                         </Grid>
                     </Grid>
-                    {useAuth && <Grid item xs={12}>
-                        <Button onClick={() => dispatch({ type: API_ACTIONS.LOGOUT_REQUEST })} variant="contained" color="primary">
-                            Logout
-                        </Button>
-                    </Grid>}
                 </Grid>
             </Container>
             <EnhancedModal
                 isOpen={customModalOpen}
                 dialogTitle={'Add Custom Product'}
                 dialogContent={
-                    <CustomProductEntryModalContent onChange={(product) => {
-                        console.info('product', product)
-                        setCustomProduct(product);
-                    }} />
+                    <CustomProductEntryModalContent onChange={onCustomProductChange} />
                 }
                 options={{
                     onClose: () => setCustomModalOpem(false),
@@ -116,8 +109,15 @@ const HomeScreen: React.FC = () => {
                             notify('Please fill out all fields', 'inapp');
                             return;
                         }
-                        addProduct(customProduct);
-                        setCustomModalOpem(false);
+                        try {
+                            const _Product = customProduct;
+                            addProduct(_Product);
+                        } catch (e) {
+                            console.error(e);
+                        } finally {
+                            setCustomProduct(undefined);
+                            setCustomModalOpem(false);
+                        }
                     }
                 }}
             />

@@ -61,7 +61,7 @@ const store = configureStore({
           PAUSE,
           PERSIST,
           PURGE,
-          REGISTER
+          REGISTER,
         ],
       }
     });

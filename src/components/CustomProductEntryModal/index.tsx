@@ -1,4 +1,5 @@
 import { Grid, MenuItem, OutlinedInput, Select } from "@mui/material";
+import _ from "lodash";
 import { useEffect, useState } from "react"
 import { Product, ProductVendor } from "types"
 
@@ -14,7 +15,7 @@ export const CustomProductEntryModalContent = ({ onChange }: Props) => {
     const [productInfoDescription, setProductInfoDescription] = useState<string>('');
     const [productInfoUrl, setProductInfoUrl] = useState<string>('');
     useEffect(() => {
-        if (productInfoVendor) {
+        if (!(_.some([productName, productImage, productInfoPrice, productInfoDescription, productInfoUrl], _.isEmpty))) {
             const product: Product = {
                 name: productName,
                 image: productImage,
@@ -29,7 +30,7 @@ export const CustomProductEntryModalContent = ({ onChange }: Props) => {
             };
             onChange(product);
         }
-    }, [productName, productImage, productInfoVendor, productInfoPrice, productInfoDescription, productInfoUrl])
+    }, [productName, productImage, productInfoVendor, productInfoPrice, productInfoDescription, productInfoUrl, onChange])
     return (
         <Grid container spacing={1}>
             <Grid item xs={12}>
