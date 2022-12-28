@@ -7,8 +7,42 @@ import {
     scorptecSearchProductHTMLNodeToProduct,
 } from 'helpers/parsers';
 import WebScrapper from 'helpers/Scrapper/scrapper';
+import _ from 'lodash';
+import { Product, ProductVendor } from 'types';
 
 const proxy = process.env.REACT_APP_PROXY_URL ?? '';
+
+export const searchPleComputersProducts = async (searchTerm: string): Promise<Product> => {
+    const json = {
+        MaximumNumberOfItems: 50,
+        OnlyWebsiteSpotlight: false,
+        ReturnAttributes: true,
+        ReturnCategories: true,
+        ReturnMarketingDescription: true,
+        SearchString: searchTerm,
+    };
+    const response = await axios.create({
+        baseURL: proxy + 'https://www.ple.com.au/api/',
+    }).post('getItemGrid', json, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    return (response.data.data['Items'] ?? []).map((item: any) => ({
+        name: (item['ManufacturerName'] ?? '') + ' ' + (item['ManufacturerModel'] ?? ''),
+        image: `https://plecom.imgix.net/iil-${item['PrimaryImageId']}-${item['InventoryItemId']}.jpg?auto=format&w=350&h=350`,
+        info: [{
+            inStock: _.some(item['Availabilities'].filter((e: any) => e.State === 'VIC'), (i) => i.InStock === true),
+            url: 'https://www.ple.com.au/' + item['ItemUrl'],
+            description: item.ItemDescription,
+            price: String(item['RetailPriceIncTax']),
+            originalPrice: item['RRPPriceIncTax'] ?? 0,
+            vendor: ProductVendor.PLE_COMPUTERS,
+        }],
+
+    }) as Product);
+}
+
 
 export const searchPcCaseGearProducts = async (searchTerm: string) => {
     const response = await axios.create({
@@ -62,6 +96,7 @@ export const searchComputerAllianceProducts = async (searchTerm: string) => {
 
 
 const integrations = [
+    searchPleComputersProducts,
     searchPcCaseGearProducts,
     searchScorptecProducts,
     searchCentrecomProducts,
