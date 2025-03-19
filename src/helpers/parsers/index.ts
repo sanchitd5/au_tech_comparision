@@ -1,82 +1,154 @@
 import { HTMLElement } from 'node-html-parser';
 import { Product, ProductVendor } from 'types';
 
+/**
+ * Utility function for safer text extraction from HTML elements
+ * @param element The HTML element to extract text from
+ * @returns Trimmed text or empty string
+ */
+const safeText = (element: HTMLElement | null | undefined): string =>
+    element?.text?.trim() || '';
+
+/**
+ * Utility function for safer attribute extraction from HTML elements
+ * @param element The HTML element to extract attribute from
+ * @param attribute The attribute name to extract
+ * @returns Attribute value or empty string
+ */
+const safeAttribute = (element: HTMLElement | null | undefined, attribute: string): string =>
+    element?.getAttribute(attribute) || '';
+
+/**
+ * Creates a complete URL from base URL and path
+ * @param baseUrl The base URL
+ * @param path The path to append
+ * @returns Complete URL
+ */
+const createUrl = (baseUrl: string, path: string): string => {
+    if (!path) return baseUrl;
+    if (path.startsWith('http')) return path;
+    return baseUrl + (path.startsWith('/') ? path : '/' + path);
+};
+
 export const scorptecSearchProductHTMLNodeToProduct = (node: HTMLElement) => {
-    const product: Product = {
-        name: node.querySelector('.detail-product-title')?.querySelector('a')?.text ?? '',
-        info: [{
-            originalPrice: parseFloat(node.querySelector('.detail-product-before-price')?.text?.replace('$', '') ?? '0'),
-            price: node.querySelector('.detail-product-price')?.innerText ?? '',
-            url: node.querySelector('.detail-product-title')?.querySelector('a')?.getAttribute('href') ?? '',
-            inStock: node.querySelector('.detail-product-stock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
-            vendor: ProductVendor.SCORPTEC,
-            description: node.querySelector('a[data-tb-sid="st_description-link"]')?.text ?? '',
-        }],
-        image: node.querySelector('.detail-image-wrapper')?.querySelector('img')?.getAttribute('src') ?? '',
+    try {
+        const titleElement = node.querySelector('.detail-product-title')?.querySelector('a');
+        const product: Product = {
+            name: safeText(titleElement),
+            info: [{
+                originalPrice: parseFloat(node.querySelector('.detail-product-before-price')?.text?.replace('$', '') ?? '0'),
+                price: node.querySelector('.detail-product-price')?.innerText ?? '',
+                url: safeAttribute(titleElement, 'href'),
+                inStock: safeText(node.querySelector('.detail-product-stock')).toLowerCase() === 'in stock',
+                vendor: ProductVendor.SCORPTEC,
+                description: safeText(node.querySelector('a[data-tb-sid="st_description-link"]')),
+            }],
+            image: safeAttribute(node.querySelector('.detail-image-wrapper')?.querySelector('img'), 'src'),
+        }
+        return product;
+    } catch (error) {
+        console.error('Error parsing Scorptec product:', error);
+        return createEmptyProduct(ProductVendor.SCORPTEC);
     }
-    return product;
 }
 
 export const centrecomSearchProductHTMLNodeToProduct = (productItem: any) => {
-    const product: Product = {
-        name: productItem.name,
-        info: [{
-            originalPrice: parseFloat('0'),
-            price: `$${productItem.price}`,
-            url: `https://www.centrecom.com.au/${productItem.seName}`,
-            inStock: productItem.stockQuantity ? true : false,
-            vendor: ProductVendor.CENTRECOM,
-            description: productItem.shortDescription ?? '',
-        }],
-        image: productItem.imgUrl,
+    try {
+        const product: Product = {
+            name: productItem.name,
+            info: [{
+                originalPrice: parseFloat('0'),
+                price: `$${productItem.price}`,
+                url: `https://www.centrecom.com.au/${productItem.seName}`,
+                inStock: productItem.stockQuantity ? true : false,
+                vendor: ProductVendor.CENTRECOM,
+                description: productItem.shortDescription ?? '',
+            }],
+            image: productItem.imgUrl,
+        }
+        return product;
+    } catch (error) {
+        console.error('Error parsing Centrecom product:', error);
+        return createEmptyProduct(ProductVendor.CENTRECOM);
     }
-    return product;
 }
 
 export const msySearchProductHTMLNodeToProduct = (node: HTMLElement) => {
-    const product: Product = {
-        name: node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('title') ?? '',
-        info: [{
-            originalPrice: parseFloat('0'),
-            price: node.querySelector('.goods_price')?.text ?? '0',
-            url: 'https://www.msy.com.au/' + node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('href') ?? '',
-            inStock: node.querySelector('.goods_stock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
-            vendor: ProductVendor.MSY,
-            description: node.querySelector('.goods_name')?.querySelector('a')?.getAttribute('title') ?? '',
-        }],
-        image: node.querySelector('.goods_img')?.querySelector('img')?.getAttribute('src') ?? '',
+    try {
+        const linkElement = node.querySelector('.goods_name')?.querySelector('a');
+        const product: Product = {
+            name: safeAttribute(linkElement, 'title'),
+            info: [{
+                originalPrice: parseFloat('0'),
+                price: safeText(node.querySelector('.goods_price')),
+                url: createUrl('https://www.msy.com.au', safeAttribute(linkElement, 'href')),
+                inStock: safeText(node.querySelector('.goods_stock')).toLowerCase() === 'in stock',
+                vendor: ProductVendor.MSY,
+                description: safeAttribute(linkElement, 'title'),
+            }],
+            image: safeAttribute(node.querySelector('.goods_img')?.querySelector('img'), 'src'),
+        }
+        return product;
+    } catch (error) {
+        console.error('Error parsing MSY product:', error);
+        return createEmptyProduct(ProductVendor.MSY);
     }
-    return product;
 }
 
-export const computerAllianceSearchProductHTMLNodeToProduct = (node: HTMLElement) => { 
-    const product: Product = {
-        name: node.querySelector('.equalize')?.text ?? '',
-        info: [{
-            originalPrice: parseFloat('0'),
-            price: node.querySelector('.price')?.text ?? '0',
-            url: 'https://www.computeralliance.com.au/' + node.querySelector('a')?.getAttribute('href') ?? '',
-            inStock: node.querySelector('.instock')?.text?.trim().toLowerCase() === 'in stock' ? true : false,
-            vendor: ProductVendor.COMPUTER_ALLIANCE,
-            description: node.querySelector('.equalize')?.text ?? '',
-        }],
-        image: node.querySelector('.img-container')?.querySelector('img')?.getAttribute('src') ?? '',
+export const computerAllianceSearchProductHTMLNodeToProduct = (node: HTMLElement) => {
+    try {
+        const product: Product = {
+            name: safeText(node.querySelector('.equalize')),
+            info: [{
+                originalPrice: parseFloat('0'),
+                price: safeText(node.querySelector('.price')),
+                url: createUrl('https://www.computeralliance.com.au', safeAttribute(node.querySelector('a'), 'href')),
+                inStock: safeText(node.querySelector('.instock')).toLowerCase() === 'in stock',
+                vendor: ProductVendor.COMPUTER_ALLIANCE,
+                description: safeText(node.querySelector('.equalize')),
+            }],
+            image: safeAttribute(node.querySelector('.img-container')?.querySelector('img'), 'src'),
+        }
+        return product;
+    } catch (error) {
+        console.error('Error parsing Computer Alliance product:', error);
+        return createEmptyProduct(ProductVendor.COMPUTER_ALLIANCE);
     }
-    return product;
 }
 
 export const pcCaseGearSearchProductHTMLNodeToProduct = (productItem: any) => {
-    const product: Product = {
-        name: productItem.products_name,
-        info: [{
-            originalPrice: parseFloat('0'),
-            price: `$${productItem.products_price}`,
-            url: `https://www.pccasegear.com/${productItem.Product_URL}`,
-            inStock: productItem.indicator.label === 'In stock' ? true : false,
-            vendor: ProductVendor.PC_CASE_GEAR,
-            description: productItem.products_description ?? '',
-        }],
-        image: productItem.Image_URL,
+    try {
+        const product: Product = {
+            name: productItem.products_name,
+            info: [{
+                originalPrice: parseFloat('0'),
+                price: `$${productItem.products_price}`,
+                url: `https://www.pccasegear.com/${productItem.Product_URL}`,
+                inStock: productItem.indicator?.label === 'In stock',
+                vendor: ProductVendor.PC_CASE_GEAR,
+                description: productItem.products_description ?? '',
+            }],
+            image: productItem.Image_URL,
+        }
+        return product;
+    } catch (error) {
+        console.error('Error parsing PC Case Gear product:', error);
+        return createEmptyProduct(ProductVendor.PC_CASE_GEAR);
     }
-    return product;
 }
+
+/**
+ * Creates a fallback product when parsing fails
+ */
+const createEmptyProduct = (vendor: ProductVendor): Product => ({
+    name: 'Error parsing product',
+    info: [{
+        originalPrice: 0,
+        price: '$0',
+        url: '',
+        inStock: false,
+        vendor,
+        description: 'Failed to parse product data',
+    }],
+    image: '',
+});
