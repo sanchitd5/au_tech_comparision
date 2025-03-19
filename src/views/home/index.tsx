@@ -29,7 +29,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 const HomeScreen: React.FC = () => {
     const [products, setProducts] = useState<Product[] | undefined>(undefined);
     const [customProduct, setCustomProduct] = useState<Product | undefined>(undefined);
-    const [sortUsingAveragePrice, setSortUsingAveragePrice] = useState<boolean>(false);
+    const [sortOption, setSortOption] = useState<string>("relevance");
     const [customModalOpen, setCustomModalOpen] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
     const [searching, setSearching] = useState<boolean>(false);
@@ -184,6 +184,61 @@ const HomeScreen: React.FC = () => {
         });
     }, []);
 
+    // Function to apply selected sorting option
+    const applySorting = useCallback((products: Product[]) => {
+        const sorted = [...products];
+        
+        switch(sortOption) {
+            case 'averagePrice':
+                return sorted.sort((a, b) => sortProductByAveragePrice(a, b, searchTerm || ''));
+            case 'priceLowToHigh':
+                return sorted.sort((a, b) => {
+                    // Find lowest price among in-stock items for each product
+                    const aInStockItems = a.info.filter(info => info.inStock === true || info.inStock === undefined);
+                    const bInStockItems = b.info.filter(info => info.inStock === true || info.inStock === undefined);
+                    
+                    // If one product has in-stock items and the other doesn't, prioritize the in-stock one
+                    if (aInStockItems.length && !bInStockItems.length) return -1;
+                    if (!aInStockItems.length && bInStockItems.length) return 1;
+                    
+                    // If both have in-stock items or both don't, compare by price
+                    const aItems = aInStockItems.length ? aInStockItems : a.info;
+                    const bItems = bInStockItems.length ? bInStockItems : b.info;
+                    
+                    const aPrice = Math.min(...aItems.map(info => 
+                        parseFloat(info.price?.replace(/[$,]/g, '') || '999999')).filter(p => !isNaN(p)));
+                    const bPrice = Math.min(...bItems.map(info => 
+                        parseFloat(info.price?.replace(/[$,]/g, '') || '999999')).filter(p => !isNaN(p)));
+                    
+                    return aPrice - bPrice;
+                });
+            case 'priceHighToLow':
+                return sorted.sort((a, b) => {
+                    // Find highest price among in-stock items for each product
+                    const aInStockItems = a.info.filter(info => info.inStock === true || info.inStock === undefined);
+                    const bInStockItems = b.info.filter(info => info.inStock === true || info.inStock === undefined);
+                    
+                    // If one product has in-stock items and the other doesn't, prioritize the in-stock one
+                    if (aInStockItems.length && !bInStockItems.length) return -1;
+                    if (!aInStockItems.length && bInStockItems.length) return 1;
+                    
+                    // If both have in-stock items or both don't, compare by price
+                    const aItems = aInStockItems.length ? aInStockItems : a.info;
+                    const bItems = bInStockItems.length ? bInStockItems : b.info;
+                    
+                    const aPrice = Math.max(...aItems.map(info => 
+                        parseFloat(info.price?.replace(/[$,]/g, '') || '0')).filter(p => !isNaN(p)));
+                    const bPrice = Math.max(...bItems.map(info => 
+                        parseFloat(info.price?.replace(/[$,]/g, '') || '0')).filter(p => !isNaN(p)));
+                    
+                    return bPrice - aPrice;
+                });
+            case 'relevance':
+            default:
+                return sorted; // Default sorting by relevance (search results order)
+        }
+    }, [sortOption, searchTerm]);
+
     return (
         <main>
             <Box><Header /></Box>
@@ -242,16 +297,20 @@ const HomeScreen: React.FC = () => {
                         </Grid>
                         <Grid item xs={12} container alignItems="center" spacing={2}>
                             <Grid item xs>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={sortUsingAveragePrice}
-                                            onChange={() => setSortUsingAveragePrice(prev => !prev)}
-                                        />
-                                    }
-                                    label={'Sort by average price'}
-                                    sx={{ '& .MuiTypography-root': { fontWeight: 500 } }}
-                                />
+                                <FormControl size="small" sx={{ minWidth: 200 }}>
+                                    <InputLabel id="sort-select-label">Sort By</InputLabel>
+                                    <Select
+                                        labelId="sort-select-label"
+                                        value={sortOption}
+                                        label="Sort By"
+                                        onChange={(e) => setSortOption(e.target.value)}
+                                    >
+                                        <MenuItem value="relevance">Relevance</MenuItem>
+                                        <MenuItem value="averagePrice">Average Price</MenuItem>
+                                        <MenuItem value="priceLowToHigh">Price: Low to High</MenuItem>
+                                        <MenuItem value="priceHighToLow">Price: High to Low</MenuItem>
+                                    </Select>
+                                </FormControl>
                             </Grid>
                             {searchTerm && products && (
                                 <Grid item>
@@ -397,8 +456,7 @@ const HomeScreen: React.FC = () => {
                                 </Typography>
 
                                 <Grid container spacing={3}>
-                                    {sortByAvailability(_.cloneDeep(filteredProducts || []))
-                                        .sort((a, b) => sortUsingAveragePrice ? sortProductByAveragePrice(a, b, searchTerm) : 0)
+                                    {applySorting(sortByAvailability(_.cloneDeep(filteredProducts || [])))
                                         .map((product, index) => (
                                             <Grid item xs={12} md={6} key={index}>
                                                 <ProductCard product={product} />
